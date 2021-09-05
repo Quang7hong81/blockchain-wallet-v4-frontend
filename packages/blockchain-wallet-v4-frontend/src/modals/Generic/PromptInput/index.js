@@ -1,17 +1,19 @@
-import { actions } from 'data'
-import { bindActionCreators, compose } from 'redux'
-import { connect } from 'react-redux'
-import { formValueSelector } from 'redux-form'
-import modalEnhancer from 'providers/ModalEnhancer'
-import PromptTemplate from './template.js'
 import React from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators, compose } from 'redux'
+import { formValueSelector } from 'redux-form'
+
+import { actions } from 'data'
+import modalEnhancer from 'providers/ModalEnhancer'
+
+import PromptTemplate from './template.js'
 
 class PromptContainer extends React.PureComponent {
   onSubmit = () => {
     this.props.actions.submitPromptInput(this.props.value)
   }
 
-  render () {
+  render() {
     return (
       <PromptTemplate
         {...this.props}
@@ -23,16 +25,16 @@ class PromptContainer extends React.PureComponent {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   value: formValueSelector('promptInputModal')(state, 'value')
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(actions.wallet, dispatch)
 })
 
 const enhance = compose(
-  modalEnhancer('PromptInput'),
+  modalEnhancer('PROMPT_INPUT_MODAL'),
   connect(mapStateToProps, mapDispatchToProps)
 )
 

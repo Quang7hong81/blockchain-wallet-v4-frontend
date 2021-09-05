@@ -1,10 +1,12 @@
+import Remote from 'blockchain-wallet-v4/src/remote/remote'
+
 import * as AT from './actionTypes'
 import { getCoinFromPair, getFiatFromPair } from './model'
 import { SimpleBuyActionTypes, SimpleBuyState } from './types'
-import Remote from 'blockchain-wallet-v4/src/remote/remote'
 
 const INITIAL_STATE: SimpleBuyState = {
   account: Remote.NotAsked,
+  addBank: undefined,
   balances: Remote.NotAsked,
   card: Remote.NotAsked,
   cardId: undefined,
@@ -14,19 +16,27 @@ const INITIAL_STATE: SimpleBuyState = {
   everypay3DS: Remote.NotAsked,
   fiatCurrency: undefined,
   fiatEligible: Remote.NotAsked,
+  limits: Remote.NotAsked,
   method: undefined,
   methods: Remote.NotAsked,
   order: undefined,
-  orders: Remote.NotAsked,
   orderType: undefined,
+  orders: Remote.NotAsked,
   pair: undefined,
   pairs: Remote.NotAsked,
+  payment: Remote.NotAsked,
   providerDetails: Remote.NotAsked,
   quote: Remote.NotAsked,
-  step: 'CURRENCY_SELECTION'
+  sddEligible: Remote.NotAsked,
+  sddTransactionFinished: false,
+  sddVerified: Remote.NotAsked,
+  sellOrder: undefined,
+  sellQuote: Remote.NotAsked,
+  step: 'CRYPTO_SELECTION',
+  swapAccount: undefined
 }
 
-export function simpleBuyReducer (
+export function simpleBuyReducer(
   state = INITIAL_STATE,
   action: SimpleBuyActionTypes
 ): SimpleBuyState {
@@ -68,11 +78,10 @@ export function simpleBuyReducer (
         ...state,
         account: Remote.NotAsked,
         cardId: undefined,
-        fiatCurrency: undefined,
         order: undefined,
         pairs: Remote.NotAsked,
         quote: Remote.NotAsked,
-        step: 'CURRENCY_SELECTION'
+        step: 'CRYPTO_SELECTION'
       }
     case AT.FETCH_SB_BALANCES_FAILURE: {
       return {
@@ -169,6 +178,13 @@ export function simpleBuyReducer (
     case AT.FETCH_SB_PAIRS_SUCCESS:
       return {
         ...state,
+        pair: action.payload.coin
+          ? action.payload.pairs.find(
+              (pair) =>
+                getCoinFromPair(pair.pair) === action.payload.coin &&
+                getFiatFromPair(pair.pair) === state.fiatCurrency
+            )
+          : state.pair,
         pairs: Remote.Success(action.payload.pairs)
       }
     case AT.FETCH_SB_PAYMENT_ACCOUNT_FAILURE: {
@@ -219,61 +235,182 @@ export function simpleBuyReducer (
         ...state,
         quote: Remote.Success(action.payload.quote)
       }
+    // used for sell only now, eventually buy as well
+    // TODO: use swap2 quote for buy AND sell
+    case AT.FETCH_SELL_QUOTE_FAILURE: {
+      return {
+        ...state,
+        sellQuote: Remote.Failure(action.payload.error)
+      }
+    }
+    case AT.FETCH_SELL_QUOTE_LOADING:
+      return {
+        ...state,
+        sellQuote: Remote.Loading
+      }
+    case AT.FETCH_SELL_QUOTE_SUCCESS:
+      return {
+        ...state,
+        sellQuote: Remote.Success({
+          quote: action.payload.quote,
+          rate: action.payload.rate
+        })
+      }
+    case AT.FETCH_SDD_ELIGIBILITY_FAILURE: {
+      return {
+        ...state,
+        sddEligible: Remote.Failure(action.payload.error)
+      }
+    }
+    case AT.FETCH_SDD_ELIGIBILITY_LOADING:
+      return {
+        ...state,
+        sddEligible: Remote.Loading
+      }
+    case AT.FETCH_SDD_ELIGIBILITY_SUCCESS:
+      return {
+        ...state,
+        sddEligible: Remote.Success(action.payload.sddEligible)
+      }
+    case AT.FETCH_SDD_VERIFIED_FAILURE: {
+      return {
+        ...state,
+        sddVerified: Remote.Failure(action.payload.error)
+      }
+    }
+    case AT.FETCH_LIMITS_FAILURE: {
+      return {
+        ...state,
+        limits: Remote.Failure(action.payload.error)
+      }
+    }
+    case AT.FETCH_LIMITS_LOADING:
+      return {
+        ...state,
+        limits: Remote.Loading
+      }
+    case AT.FETCH_LIMITS_SUCCESS:
+      return {
+        ...state,
+        limits: Remote.Success(action.payload.limits)
+      }
+    case AT.FETCH_SDD_VERIFIED_LOADING:
+      return {
+        ...state,
+        sddVerified: Remote.Loading
+      }
+    case AT.FETCH_SDD_VERIFIED_SUCCESS:
+      return {
+        ...state,
+        sddVerified: Remote.Success(action.payload.sddVerified)
+      }
     case AT.INITIALIZE_CHECKOUT:
       return {
         ...state,
         pair:
           action.pair ||
           action.pairs.find(
-            pair =>
+            (pair) =>
               getCoinFromPair(pair.pair) === state.cryptoCurrency &&
               getFiatFromPair(pair.pair) === state.fiatCurrency
           )
       }
+    case AT.UPDATE_PAYMENT_FAILURE: {
+      return {
+        ...state,
+        payment: Remote.Failure(action.payload.error)
+      }
+    }
+    case AT.UPDATE_PAYMENT_LOADING: {
+      return {
+        ...state,
+        payment: Remote.Loading
+      }
+    }
+    case AT.UPDATE_PAYMENT_SUCCESS: {
+      return {
+        ...state,
+        payment: Remote.Success(action.payload.payment)
+      }
+    }
+    case AT.UPDATE_SDD_TRANSACTION_FINISHED: {
+      return {
+        ...state,
+        sddTransactionFinished: true
+      }
+    }
+    case AT.SET_FIAT_CURRENCY:
+      return {
+        ...state,
+        fiatCurrency: action.payload.fiatCurrency
+      }
+    case AT.SET_METHOD:
+      return {
+        ...state,
+        method: action.payload
+      }
     case AT.SET_STEP:
       switch (action.payload.step) {
         case 'ENTER_AMOUNT':
+        case 'VERIFY_EMAIL':
           return {
             ...state,
-            orderType: action.payload.orderType,
+            addBank: undefined,
             cryptoCurrency: action.payload.cryptoCurrency,
             fiatCurrency: action.payload.fiatCurrency,
-            step: action.payload.step,
-            pair: action.payload.pair,
             method: action.payload.method,
-            order: undefined
+            order: undefined,
+            orderType: action.payload.orderType,
+            pair: action.payload.pair,
+            step: action.payload.step,
+            swapAccount: action.payload.swapAccount
           }
         case 'CRYPTO_SELECTION':
           return {
             ...state,
+            addBank: undefined,
             cryptoCurrency: action.payload.cryptoCurrency,
             fiatCurrency: action.payload.fiatCurrency,
-            step: action.payload.step
+            orderType: action.payload.orderType,
+            step: action.payload.step,
+            swapAccount: undefined
           }
+        case 'LINKED_PAYMENT_ACCOUNTS':
         case 'PAYMENT_METHODS':
           return {
             ...state,
+            addBank: undefined,
             cryptoCurrency: action.payload.cryptoCurrency,
             fiatCurrency: action.payload.fiatCurrency,
-            step: action.payload.step,
-            order: action.payload.order
-          }
-        case '3DS_HANDLER':
-        case 'CHECKOUT_CONFIRM':
-        case 'ORDER_SUMMARY':
-        case 'CANCEL_ORDER':
-          return {
-            ...state,
             order: action.payload.order,
             step: action.payload.step
           }
-        case 'TRANSFER_DETAILS':
+        case '3DS_HANDLER':
+        case 'CHECKOUT_CONFIRM':
+        case 'OPEN_BANKING_CONNECT':
+        case 'ORDER_SUMMARY':
           return {
             ...state,
-            step: action.payload.step,
-            fiatCurrency: action.payload.fiatCurrency,
-            displayBack: action.payload.displayBack
+            addBank: undefined,
+            order: action.payload.order,
+            step: action.payload.step
           }
+        case 'BANK_WIRE_DETAILS':
+          return {
+            ...state,
+            addBank: action.payload.addBank,
+            displayBack: action.payload.displayBack,
+            fiatCurrency: action.payload.fiatCurrency,
+            step: action.payload.step
+          }
+        case 'SELL_ORDER_SUMMARY':
+          return {
+            ...state,
+            sellOrder: action.payload.sellOrder,
+            step: action.payload.step
+          }
+        case 'LOADING':
+        case 'FREQUENCY':
         default: {
           return {
             ...state,

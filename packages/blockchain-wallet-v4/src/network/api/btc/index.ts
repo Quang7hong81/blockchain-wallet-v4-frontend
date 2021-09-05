@@ -1,84 +1,95 @@
 import { toUpper } from 'ramda'
 
-export default ({ rootUrl, apiUrl, get, post }) => {
+export default ({ apiUrl, get, post, rootUrl }) => {
   const getBtcTicker = () =>
     get({
-      url: apiUrl,
+      data: { base: 'BTC' },
       endPoint: '/ticker',
-      data: { base: 'BTC' }
+      url: apiUrl
     })
 
-  const getBtcUnspents = (fromAddresses, confirmations = 0) =>
+  const getBtcUnspents = (fromAddresses, confirmations = 0, extras) =>
     post({
-      url: rootUrl,
-      endPoint: '/unspent',
       data: {
         active: fromAddresses.join('|'),
+        activeBech32: extras ? extras.bech32 : null,
         confirmations: Math.max(confirmations, -1),
         format: 'json'
-      }
+      },
+      endPoint: '/unspent',
+      url: rootUrl
     })
 
   const getBtcFees = () =>
     get({
-      url: apiUrl,
-      endPoint: '/mempool/fees'
+      endPoint: '/mempool/fees',
+      url: apiUrl
     })
 
-  const pushBtcTx = txHex =>
+  const pushBtcTx = (txHex) =>
     post({
-      url: rootUrl,
+      data: { format: 'plain', tx: txHex },
       endPoint: '/pushtx',
-      data: { tx: txHex, format: 'plain' }
+      url: rootUrl
     })
 
   const getBtcFiatAtTime = (amount, currency, time) =>
     get({
-      url: apiUrl,
-      endPoint: '/frombtc',
       data: {
-        value: amount,
         currency: toUpper(currency),
-        time,
+        nosavecurrency: true,
         textual: false,
-        nosavecurrency: true
-      }
+        time,
+        value: amount
+      },
+      endPoint: '/frombtc',
+      url: apiUrl
     })
+
+  const getBtcTransactionHistory = (active, activeBech32, currency, start, end) => {
+    const endpoint = '/v2/export-history'
+    return post({
+      data: { active, activeBech32, currency: toUpper(currency), end, start },
+      endPoint: endpoint,
+      url: rootUrl
+    })
+  }
 
   const getLatestBlock = () =>
     get({
-      url: rootUrl,
-      endPoint: '/latestblock'
+      endPoint: '/latestblock',
+      url: rootUrl
     })
 
-  const getRawTx = txHex =>
+  const getRawTx = (txHex) =>
     get({
-      url: rootUrl,
-      endPoint: '/rawtx/' + txHex,
       data: {
-        format: 'hex',
-        cors: 'true'
-      }
+        cors: 'true',
+        format: 'hex'
+      },
+      endPoint: `/rawtx/${txHex}`,
+      url: rootUrl
     })
 
-  const getBalances = addresses =>
+  const getBalances = (addresses) =>
     post({
-      url: rootUrl,
-      endPoint: '/balance',
       data: {
         active: addresses.join('|'),
         format: 'json'
-      }
+      },
+      endPoint: '/balance',
+      url: rootUrl
     })
 
   return {
-    getBtcTicker,
-    getBtcUnspents,
+    getBalances,
     getBtcFees,
-    pushBtcTx,
     getBtcFiatAtTime,
+    getBtcTicker,
+    getBtcTransactionHistory,
+    getBtcUnspents,
     getLatestBlock,
     getRawTx,
-    getBalances
+    pushBtcTx
   }
 }

@@ -1,15 +1,14 @@
-import { replace } from 'ramda'
 import React from 'react'
+import { replace } from 'ramda'
 import styled from 'styled-components'
 
 import Alerts from 'components/Alerts'
 import Announcements from 'components/Announcements'
-import ErrorBoundary from 'providers/ErrorBoundaryProvider'
-import media from 'services/ResponsiveService'
-import Modals from '../../modals'
 import Tooltips from 'components/Tooltips'
-import ZendeskWidget from 'components/ZendeskWidget'
+import ErrorBoundary from 'providers/ErrorBoundaryProvider'
+import { media } from 'services/styles'
 
+import Modals from '../../modals'
 import MenuLeft from './MenuLeft'
 import MenuTop from './MenuTop'
 import Page from './Page'
@@ -27,7 +26,7 @@ const Container = styled.div`
 `
 const Nav = styled.div`
   flex: 0 0 60px;
-  background-color: ${props => props.theme.blue900};
+  background-color: ${(props) => props.theme.blue900};
 `
 const Content = styled.div`
   box-sizing: border-box;
@@ -38,15 +37,21 @@ const Content = styled.div`
   align-items: flex-start;
   width: calc(100% - 250px);
   max-width: calc(100% - 250px);
-  background-color: ${props => props.theme.white};
-  padding: 16px 30px;
+  background-color: ${(props) => props.theme.white};
+  padding: 32px 28px 16px 36px;
   ${media.tablet`
     padding: 8px 16px;
     width: 100%;
+    max-width: 100%;
+  `}
+  ${media.mobile`
+    padding: 8px 16px;
+    width: 100%;
+    max-width: 100%;
   `}
 `
 
-const WalletLayout = props => {
+const WalletLayout = (props) => {
   const { children, location } = props
 
   return (
@@ -66,7 +71,6 @@ const WalletLayout = props => {
             <Page>{children}</Page>
           </Content>
         </Container>
-        <ZendeskWidget />
       </ErrorBoundary>
     </Wrapper>
   )

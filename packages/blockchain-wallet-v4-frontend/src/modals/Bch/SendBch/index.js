@@ -1,31 +1,32 @@
-import { bindActionCreators, compose } from 'redux'
+import React from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import React from 'react'
+import { bindActionCreators, compose } from 'redux'
 
 import { actions, model, selectors } from 'data'
-import FirstStep from './FirstStep'
 import modalEnhancer from 'providers/ModalEnhancer'
+
+import FirstStep from './FirstStep'
 import SecondStep from './SecondStep'
 import SendBch from './template'
 
 class SendBchContainer extends React.PureComponent {
-  componentDidMount () {
+  componentDidMount() {
     const { actions, amount, description, from, payPro, to } = this.props
     actions.initialized({
-      from,
-      to,
-      description,
       amount,
-      payPro
+      description,
+      from,
+      payPro,
+      to
     })
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.props.actions.destroyed()
   }
 
-  render () {
+  render() {
     const {
       amount,
       closeAll,
@@ -56,22 +57,22 @@ class SendBchContainer extends React.PureComponent {
 }
 
 SendBchContainer.propTypes = {
-  step: PropTypes.number.isRequired,
+  closeAll: PropTypes.func.isRequired,
   position: PropTypes.number.isRequired,
-  total: PropTypes.number.isRequired,
-  closeAll: PropTypes.func.isRequired
+  step: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   step: selectors.components.sendBch.getStep(state)
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(actions.components.sendBch, dispatch)
 })
 
 const enhance = compose(
-  modalEnhancer(model.components.sendBch.MODAL),
+  modalEnhancer('SEND_BCH_MODAL'),
   connect(mapStateToProps, mapDispatchToProps)
 )
 

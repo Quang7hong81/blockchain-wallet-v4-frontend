@@ -1,6 +1,5 @@
-import { FormattedMessage } from 'react-intl'
-import QRCodeWrapper from 'components/QRCodeWrapper'
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import styled from 'styled-components'
 
 import {
@@ -12,6 +11,7 @@ import {
   ModalHeader,
   Text
 } from 'blockchain-info-components'
+import QRCodeWrapper from 'components/QRCode/Wrapper'
 import modalEnhancer from 'providers/ModalEnhancer'
 
 const Content = styled.div`
@@ -21,7 +21,7 @@ const Content = styled.div`
   align-items: center;
 `
 const XPubText = styled(Text)`
-  background-color: ${props => props.theme.grey000};
+  background-color: ${(props) => props.theme.grey000};
   padding: 25px;
   margin-bottom: 20px;
   word-break: break-all;
@@ -32,8 +32,8 @@ const WarningBanner = styled(Banner)`
 `
 
 class ShowXPubContainer extends Component {
-  render () {
-    const { position, closeAll, total, xpub } = this.props
+  render() {
+    const { closeAll, position, total, xpub } = this.props
 
     return (
       <Modal size='large' position={position} total={total}>
@@ -56,19 +56,11 @@ class ShowXPubContainer extends Component {
             <XPubText size='12px' weight='300' data-e2e='walletXpub'>
               {xpub}
             </XPubText>
-            <QRCodeWrapper
-              value={xpub}
-              size={150}
-              data-e2e='walletXpubQrCode'
-            />
+            <QRCodeWrapper value={xpub} size={150} data-e2e='walletXpubQrCode' />
           </Content>
         </ModalBody>
         <ModalFooter align='right'>
-          <Button
-            nature='primary'
-            onClick={closeAll}
-            data-e2e='closeShowXpubModalButton'
-          >
+          <Button nature='primary' onClick={closeAll} data-e2e='closeShowXpubModalButton'>
             <FormattedMessage id='buttons.close' defaultMessage='Close' />
           </Button>
         </ModalFooter>
@@ -77,4 +69,4 @@ class ShowXPubContainer extends Component {
   }
 }
 
-export default modalEnhancer('ShowXPub')(ShowXPubContainer)
+export default modalEnhancer('SHOW_XPUB_MODAL')(ShowXPubContainer)

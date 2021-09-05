@@ -1,11 +1,13 @@
-import { actions } from 'data'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import Announcements from 'components/Announcements'
-import LockboxHeader from '../template.header'
 import React from 'react'
-import Setup from './template'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 import styled from 'styled-components'
+
+import Announcements from 'components/Announcements'
+import { actions } from 'data'
+
+import LockboxHeader from '../template.header'
+import Setup from './template'
 
 const Wrapper = styled.div`
   height: 100%;
@@ -14,10 +16,10 @@ const Wrapper = styled.div`
 
 class OnboardContainer extends React.PureComponent {
   launchLockboxSetup = () => {
-    this.props.modalActions.showModal('LockboxSetup')
+    this.props.modalActions.showModal('LOCKBOX_SETUP_MODAL')
   }
 
-  render () {
+  render() {
     return (
       <Wrapper>
         <LockboxHeader />
@@ -28,7 +30,7 @@ class OnboardContainer extends React.PureComponent {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   lockboxActions: bindActionCreators(actions.components.lockbox, dispatch),
   modalActions: bindActionCreators(actions.modals, dispatch)
 })

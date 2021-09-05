@@ -1,6 +1,7 @@
-import { Text } from 'blockchain-info-components'
-import media from 'services/ResponsiveService'
 import styled, { css } from 'styled-components'
+
+import { Text } from 'blockchain-info-components'
+import { media } from 'services/styles'
 
 export const Wrapper = styled.div`
   display: flex;
@@ -11,7 +12,7 @@ export const Wrapper = styled.div`
   overflow: hidden;
   padding: 20px;
   border-radius: 8px;
-  border: 1px solid ${props => props.theme.grey000};
+  border: 1px solid ${(props) => props.theme.grey000};
 
   ${media.atLeastLaptop`
   height: 56px;
@@ -31,7 +32,7 @@ export const ColumnWrapper = styled.div<{ showSpacing?: boolean }>`
   height: 100%;
   ${media.mobile`
   width: 100%;
-  margin-top: ${props => (props.showSpacing ? '24px' : '0')};
+  margin-top: ${(props) => (props.showSpacing ? '24px' : '0')};
 `}
 `
 export const Column = styled.div<{ hideRow?: boolean }>`
@@ -40,7 +41,7 @@ export const Column = styled.div<{ hideRow?: boolean }>`
   justify-content: center;
   align-items: flex-start;
 
-  ${props =>
+  ${(props) =>
     !props.hideRow &&
     css`
       flex-direction: column;
@@ -51,7 +52,7 @@ export const Column = styled.div<{ hideRow?: boolean }>`
 `}
 `
 export const Title = styled(Text)`
-  color: ${props => props.theme.grey800};
+  color: ${(props) => props.theme.grey800};
   margin-top: 4px;
   margin-right: 8px;
 `

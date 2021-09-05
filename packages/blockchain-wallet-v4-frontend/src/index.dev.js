@@ -1,11 +1,11 @@
-import { AppContainer } from 'react-hot-loader'
-import { BrowserRouter } from 'react-router-dom'
 import React from 'react'
 import ReactDOM from 'react-dom'
-
-import { FontGlobalStyles, IconGlobalStyles } from 'blockchain-info-components'
+import { AppContainer } from 'react-hot-loader'
+import { BrowserRouter } from 'react-router-dom'
 import App from 'scenes/app.tsx'
 import configureStore from 'store'
+
+import { FontGlobalStyles, IconGlobalStyles } from 'blockchain-info-components'
 
 import Error from './index.error'
 
@@ -34,16 +34,16 @@ const renderApp = (Component, store, history, persistor) => {
   }
 }
 
-const renderError = e => {
+const renderError = (e) => {
   // eslint-disable-next-line no-console
   console.error(e)
   ReactDOM.render(<Error />, document.getElementById('app'))
 }
 
 configureStore()
-  .then(root => {
+  .then((root) => {
     renderApp(App, root.store, root.history, root.persistor)
   })
-  .catch(e => {
+  .catch((e) => {
     renderError(e)
   })

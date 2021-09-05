@@ -1,8 +1,6 @@
-import { BigNumber } from 'bignumber.js'
-import { Exchange } from 'blockchain-wallet-v4/src'
+import React from 'react'
 import { FormattedMessage } from 'react-intl'
-import { Props } from '../template.success'
-import { Status, To, Type } from './model'
+
 import {
   Table,
   TableCell,
@@ -10,23 +8,19 @@ import {
   TableRow,
   Text
 } from 'blockchain-info-components'
-import React from 'react'
+import { Exchange } from 'blockchain-wallet-v4/src'
 
-const getQuantity = (amt, currency) => {
-  switch (currency) {
-    case 'STX':
-      // TODO: use Exchange converter once implemented
-      return new BigNumber(amt).dividedBy(10000000).toString()
-    case 'XLM':
-      return Exchange.convertXlmToXlm({
-        value: amt,
-        fromUnit: 'STROOP',
-        toUnit: 'XLM'
-      }).value
-  }
+import { Props } from '../template.success'
+import { Status, To, Type } from './model'
+
+const getQuantity = (amt, coin) => {
+  return Exchange.convertCoinToCoin({
+    coin,
+    value: amt
+  })
 }
 
-export default function Success ({ userCampaignsInfoResponseList }: Props) {
+export default function Success({ userCampaignsInfoResponseList }: Props) {
   const completedCampaigns = userCampaignsInfoResponseList.filter(
     campaign => campaign.campaignState === 'ENDED'
   )

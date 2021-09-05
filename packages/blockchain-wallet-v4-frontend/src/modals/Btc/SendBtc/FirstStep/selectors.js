@@ -1,9 +1,10 @@
-import { createDeepEqualSelector } from 'services/ReselectHelper'
-import { FormattedMessage } from 'react-intl'
-import { isEmpty, length, path, pathOr, prop } from 'ramda'
-import { model, selectors } from 'data'
-import Bitcoin from 'bitcoinjs-lib'
 import React from 'react'
+import { FormattedMessage } from 'react-intl'
+import * as Bitcoin from 'bitcoinjs-lib'
+import { isEmpty, length, path, pathOr, prop } from 'ramda'
+
+import { createDeepEqualSelector } from 'blockchain-wallet-v4/src/utils'
+import { model, selectors } from 'data'
 
 export const getData = createDeepEqualSelector(
   [
@@ -13,9 +14,7 @@ export const getData = createDeepEqualSelector(
     selectors.core.common.btc.getActiveAddresses,
     selectors.core.kvStore.lockbox.getDevices,
     selectors.core.wallet.isMnemonicVerified,
-    selectors.core.walletOptions.getBtcNetwork,
-    selectors.form.getFormValues(model.components.sendBtc.FORM),
-    selectors.core.walletOptions.getCoinAvailability
+    selectors.form.getFormValues(model.components.sendBtc.FORM)
   ],
   (
     feePerByteToggled,
@@ -24,26 +23,20 @@ export const getData = createDeepEqualSelector(
     btcAddressesR,
     lockboxDevicesR,
     isMnemonicVerified,
-    networkTypeR,
-    formValues,
-    coinAvailabilityR
+    formValues
   ) => {
     const btcAccountsLength = length(btcAccountsR.getOrElse([]))
     const btcAddressesLength = length(btcAddressesR.getOrElse([]))
-    const networkType = networkTypeR.getOrElse('bitcoin')
-    const excludeLockbox = !prop(
-      'lockbox',
-      coinAvailabilityR('BTC').getOrElse({})
-    )
+    const networkType = 'bitcoin'
+    const excludeLockbox = false
     const enableToggle =
-      btcAccountsLength + btcAddressesLength > 1 ||
-      !isEmpty(lockboxDevicesR.getOrElse([]))
+      btcAccountsLength + btcAddressesLength > 1 || !isEmpty(lockboxDevicesR.getOrElse([]))
     const amount = prop('amount', formValues)
     const feePerByte = prop('feePerByte', formValues)
     const destination = prop('to', formValues)
     const from = prop('from', formValues)
 
-    const transform = payment => {
+    const transform = (payment) => {
       const regularFeePerByte = path(['fees', 'regular'], payment)
       const priorityFeePerByte = path(['fees', 'priority'], payment)
       const minFeePerByte = path(['fees', 'limits', 'min'], payment)

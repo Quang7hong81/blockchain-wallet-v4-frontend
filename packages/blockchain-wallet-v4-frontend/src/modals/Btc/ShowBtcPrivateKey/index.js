@@ -1,8 +1,10 @@
-import { actions } from 'data'
-import { bindActionCreators, compose } from 'redux'
-import { connect } from 'react-redux'
-import modalEnhancer from 'providers/ModalEnhancer'
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators, compose } from 'redux'
+
+import { actions } from 'data'
+import modalEnhancer from 'providers/ModalEnhancer'
+
 import ShowBtcPrivateKeyTemplate from './template'
 
 const formats = [
@@ -16,23 +18,23 @@ const formats = [
 ]
 
 class ShowBtcPrivateKeyContainer extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = { format: 'wif' }
     this.handleChangeFormat = this.handleChangeFormat.bind(this)
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.props.actions.clearShownBtcPrivateKey()
   }
 
-  handleChangeFormat (format) {
+  handleChangeFormat(format) {
     this.setState({ format })
   }
 
-  render () {
-    let step = this.props.priv == null ? 0 : 1
-    let nextStep = () => this.props.actions.showBtcPrivateKey(this.props.addr)
+  render() {
+    const step = this.props.priv == null ? 0 : 1
+    const nextStep = () => this.props.actions.showBtcPrivateKey(this.props.addr)
     return (
       <ShowBtcPrivateKeyTemplate
         {...this.props}
@@ -46,16 +48,16 @@ class ShowBtcPrivateKeyContainer extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   priv: state.securityCenter.shownBtcPrivKey
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(actions.modules.settings, dispatch)
 })
 
 const enhance = compose(
-  modalEnhancer('ShowBtcPrivateKey'),
+  modalEnhancer('SHOW_BTC_PRIVATE_KEY_MODAL'),
   connect(mapStateToProps, mapDispatchToProps)
 )
 

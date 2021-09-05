@@ -1,42 +1,30 @@
-import { bindActionCreators, compose } from 'redux'
-import { connect } from 'react-redux'
 import React from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators, compose } from 'redux'
 
 import { actions } from 'data'
-import DeleteAddressLabel from './template'
 import modalEnhancer from 'providers/ModalEnhancer'
+
+import DeleteAddressLabel from './template'
 
 class DeleteAddressLabelContainer extends React.PureComponent {
   onDeleteConfirm = () => {
-    const { accountIdx, walletIdx, addressIdx } = this.props
-
-    this.props.componentActions.deleteAddressLabel(
-      accountIdx,
-      walletIdx,
-      addressIdx
-    )
-    this.props.close()
+    const { accountIdx, addressIdx, close, componentActions, derivation, walletIdx } = this.props
+    componentActions.deleteAddressLabel(accountIdx, walletIdx, addressIdx, derivation)
+    close()
   }
 
-  render () {
-    return (
-      <DeleteAddressLabel
-        {...this.props}
-        onDeleteConfirm={this.onDeleteConfirm}
-      />
-    )
+  render() {
+    return <DeleteAddressLabel {...this.props} onDeleteConfirm={this.onDeleteConfirm} />
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  componentActions: bindActionCreators(
-    actions.components.manageAddresses,
-    dispatch
-  )
+const mapDispatchToProps = (dispatch) => ({
+  componentActions: bindActionCreators(actions.components.manageAddresses, dispatch)
 })
 
 const enhance = compose(
-  modalEnhancer('DeleteAddressLabel'),
+  modalEnhancer('DELETE_ADDRESS_LABEL_MODAL'),
   connect(undefined, mapDispatchToProps)
 )
 

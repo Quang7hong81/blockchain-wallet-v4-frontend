@@ -1,14 +1,10 @@
-import ALGO from './ALGO'
 import AUD from './AUD'
-import BCH from './BCH'
 import BRL from './BRL'
-import BTC from './BTC'
 import CAD from './CAD'
 import CHF from './CHF'
 import CLP from './CLP'
 import CNY from './CNY'
 import DKK from './DKK'
-import ETH from './ETH'
 import EUR from './EUR'
 import GBP from './GBP'
 import HKD from './HKD'
@@ -17,20 +13,16 @@ import ISK from './ISK'
 import JPY from './JPY'
 import KRW from './KRW'
 import NZD from './NZD'
-import PAX from './PAX'
 import PLN from './PLN'
 import RUB from './RUB'
 import SEK from './SEK'
 import SGD from './SGD'
 import THB from './THB'
+import TRY from './TRY'
 import TWD from './TWD'
 import USD from './USD'
-import USDT from './USDT'
-import XLM from './XLM'
 
-const FiatCurrencies = {
-  EUR,
-  USD,
+export const FiatCurrencies = {
   AUD,
   BRL,
   CAD,
@@ -38,6 +30,7 @@ const FiatCurrencies = {
   CLP,
   CNY,
   DKK,
+  EUR,
   GBP,
   HKD,
   INR,
@@ -50,31 +43,11 @@ const FiatCurrencies = {
   SEK,
   SGD,
   THB,
-  TWD
-}
-
-const CryptoCurrencies = {
-  ALGO,
-  BCH,
-  BTC,
-  ETH,
-  PAX,
-  XLM,
-  USDT
-}
-
-const ERC20Currencies = {
-  PAX,
-  USDT
-}
-
-const Currencies = {
-  ...CryptoCurrencies,
-  ...FiatCurrencies
+  TRY,
+  TWD,
+  USD
 }
 
 export type FiatCurrenciesType = typeof FiatCurrencies
-export type CryptoCurrenciesType = typeof CryptoCurrencies
-export type Erc20CurrenciesType = typeof ERC20Currencies
-export type CurrenciesType = FiatCurrenciesType & CryptoCurrenciesType
-export default Currencies
+
+export default FiatCurrencies

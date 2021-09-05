@@ -1,29 +1,34 @@
+import moment from 'moment'
+import { concat, flatten, indexBy, length, map, path, prop, replace } from 'ramda'
+import { call, put, select, take } from 'redux-saga/effects'
+
+import {
+  FetchCustodialOrdersAndTransactionsReturnType,
+  HDAccountList,
+  Wallet
+} from 'blockchain-wallet-v4/src/types'
+import { APIType } from 'core/network/api'
+import { ProcessedTxType } from 'core/transactions/types'
+
+import Remote from '../../../remote'
+import * as transactions from '../../../transactions'
+import { errorHandler, MISSING_WALLET } from '../../../utils'
+import { getAddressLabels } from '../../kvStore/btc/selectors'
+import { getLockboxBtcAccounts } from '../../kvStore/lockbox/selectors'
+import * as selectors from '../../selectors'
+import * as walletSelectors from '../../wallet/selectors'
+import custodialSagas from '../custodial/sagas'
 import * as A from './actions'
 import * as AT from './actionTypes'
 import * as S from './selectors'
-import * as selectors from '../../selectors'
-import * as transactions from '../../../transactions'
-import * as walletSelectors from '../../wallet/selectors'
-import { APIType } from 'core/network/api'
-import { call, put, select, take } from 'redux-saga/effects'
-import { errorHandler, MISSING_WALLET } from '../../../utils'
-import { FetchSBOrdersAndTransactionsReturnType } from 'core/types'
-import { flatten, indexBy, length, map, path, prop, replace } from 'ramda'
-import { getAddressLabels } from '../../kvStore/btc/selectors'
-import { getLockboxBtcAccounts } from '../../kvStore/lockbox/selectors'
-import { HDAccountList, Wallet } from '../../../types'
-import { ProcessedTxType } from 'core/transactions/types'
-import moment from 'moment'
-import Remote from '../../../remote'
-import simpleBuySagas from '../simpleBuy/sagas'
 
-const transformTx = transactions.btc.transformTx
+const { transformTx } = transactions.btc
 const TX_PER_PAGE = 10
 
 export default ({ api }: { api: APIType }) => {
-  const { fetchSBOrdersAndTransactions } = simpleBuySagas({ api })
+  const { fetchCustodialOrdersAndTransactions } = custodialSagas({ api })
 
-  const fetchData = function * () {
+  const fetchData = function* () {
     try {
       yield put(A.fetchDataLoading())
       const context = yield select(S.getContext)
@@ -40,7 +45,7 @@ export default ({ api }: { api: APIType }) => {
     }
   }
 
-  const fetchRates = function * () {
+  const fetchRates = function* () {
     try {
       yield put(A.fetchRatesLoading())
       const data = yield call(api.getBtcTicker)
@@ -50,45 +55,50 @@ export default ({ api }: { api: APIType }) => {
     }
   }
 
-  const watchTransactions = function * () {
+  const watchTransactions = function* () {
     while (true) {
       const action = yield take(AT.FETCH_BTC_TRANSACTIONS)
       yield call(fetchTransactions, action)
     }
   }
 
-  const fetchTransactions = function * (action) {
+  const fetchTransactions = function* (action) {
     try {
       const { payload } = action
-      const { address, reset } = payload
+      const { address, filter, reset } = payload
       const pages = yield select(S.getTransactions)
       const offset = reset ? 0 : length(pages) * TX_PER_PAGE
       const transactionsAtBound = yield select(S.getTransactionsAtBound)
       if (transactionsAtBound && !reset) return
       yield put(A.fetchTransactionsLoading(reset))
-      const walletContext = yield select(selectors.wallet.getWalletContext)
       const context = yield select(S.getContext)
-      const data = yield call(api.fetchBlockchainData, context, {
-        n: TX_PER_PAGE,
-        onlyShow: address || walletContext,
-        offset
-      })
+      const walletContext = yield select(S.getWalletContext)
+      const data = yield call(
+        api.fetchBlockchainData,
+        context,
+        {
+          n: TX_PER_PAGE,
+          offset,
+          onlyShow: address || concat(walletContext.legacy, walletContext.bech32 || [])
+        },
+        filter
+      )
       const atBounds = length(data.txs) < TX_PER_PAGE
       yield put(A.transactionsAtBound(atBounds))
       const txPage: Array<ProcessedTxType> = yield call(__processTxs, data.txs)
-      const nextSBTransactionsURL = selectors.data.sbCore.getNextSBTransactionsURL(
+      const nextSBTransactionsURL = selectors.data.custodial.getNextSBTransactionsURL(
         yield select(),
         'BTC'
       )
-      const sbPage: FetchSBOrdersAndTransactionsReturnType = yield call(
-        fetchSBOrdersAndTransactions,
+      const custodialPage: FetchCustodialOrdersAndTransactionsReturnType = yield call(
+        fetchCustodialOrdersAndTransactions,
         txPage,
         offset,
         atBounds,
         'BTC',
         reset ? null : nextSBTransactionsURL
       )
-      const page = flatten([txPage, sbPage.orders]).sort((a, b) => {
+      const page = flatten([txPage, custodialPage.orders]).sort((a, b) => {
         return moment(b.insertedAt).valueOf() - moment(a.insertedAt).valueOf()
       })
       yield put(A.fetchTransactionsSuccess(page, reset))
@@ -97,8 +107,10 @@ export default ({ api }: { api: APIType }) => {
     }
   }
 
-  const fetchTransactionHistory = function * ({ payload }) {
-    const { address, start, end } = payload
+  const fetchTransactionHistory = function* ({ payload }) {
+    const { address, end, start } = payload
+    const bech32Address = address.find((add) => prop('type', add) === 'bech32')
+    const legacyAddress = address.find((add) => prop('type', add) === 'legacy')
     const startDate = moment(start).format('DD/MM/YYYY')
     const endDate = moment(end).format('DD/MM/YYYY')
     try {
@@ -106,9 +118,9 @@ export default ({ api }: { api: APIType }) => {
       const currency = yield select(selectors.settings.getCurrency)
       if (address) {
         const data = yield call(
-          api.getTransactionHistory,
-          'BTC',
-          address,
+          api.getBtcTransactionHistory,
+          prop('address', legacyAddress),
+          prop('address', bech32Address),
           currency.getOrElse('USD'),
           startDate,
           endDate
@@ -118,12 +130,12 @@ export default ({ api }: { api: APIType }) => {
         const context = yield select(S.getContext)
         const active = context.join('|')
         const data = yield call(
-          api.getTransactionHistory,
-          'BTC',
+          api.getBtcTransactionHistory,
           active,
+          undefined,
           currency.getOrElse('USD'),
           startDate,
-          end
+          endDate
         )
         yield put(A.fetchTransactionHistorySuccess(data))
       }
@@ -132,7 +144,7 @@ export default ({ api }: { api: APIType }) => {
     }
   }
 
-  const __processTxs = function * (txs) {
+  const __processTxs = function* (txs) {
     // Page == Remote ([Tx])
     // Remote(wallet)
     const wallet = yield select(walletSelectors.getWallet)
@@ -161,8 +173,8 @@ export default ({ api }: { api: APIType }) => {
     return ProcessTxs(walletR, accountListR, txs, txNotes, addressLabels)
   }
 
-  const fetchFiatAtTime = function * (action) {
-    const { hash, amount, time, currency } = action.payload
+  const fetchFiatAtTime = function* (action) {
+    const { amount, currency, hash, time } = action.payload
     try {
       yield put(A.fetchFiatAtTimeLoading(hash, currency))
       const data = yield call(api.getBtcFiatAtTime, amount, currency, time)
@@ -179,12 +191,12 @@ export default ({ api }: { api: APIType }) => {
   }
 
   return {
+    __processTxs,
     fetchData,
-    fetchRates,
     fetchFiatAtTime,
+    fetchRates,
     fetchTransactionHistory,
     fetchTransactions,
-    watchTransactions,
-    __processTxs
+    watchTransactions
   }
 }

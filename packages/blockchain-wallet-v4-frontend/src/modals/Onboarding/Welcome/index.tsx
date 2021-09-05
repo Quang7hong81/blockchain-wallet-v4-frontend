@@ -1,26 +1,14 @@
-import { actions } from 'data'
-import { bindActionCreators, compose } from 'redux'
-import { Button, Icon, Image, Text } from 'blockchain-info-components'
-import { connect } from 'react-redux'
-import { FormattedMessage } from 'react-intl'
-import Flyout, { duration, FlyoutWrapper } from 'components/Flyout'
-import modalEnhancer from 'providers/ModalEnhancer'
 import React from 'react'
+import { FormattedMessage } from 'react-intl'
+import { connect, ConnectedProps } from 'react-redux'
+import { bindActionCreators, compose } from 'redux'
 import styled from 'styled-components'
 
-type OwnPropsType = {
-  close: () => void
-  position: number
-  total: number
-  userClickedOutside: boolean
-}
-
-type LinkDispatchPropsType = {
-  onboardingActions: typeof actions.components.onboarding
-  simpleBuyActions: typeof actions.components.simpleBuy
-}
-
-type Props = OwnPropsType & LinkDispatchPropsType
+import { Button, Icon, Image, Text } from 'blockchain-info-components'
+import Flyout, { duration, FlyoutWrapper } from 'components/Flyout'
+import { actions, selectors } from 'data'
+import { ModalName } from 'data/types'
+import modalEnhancer from 'providers/ModalEnhancer'
 
 const CustomFlyoutWrapper = styled(FlyoutWrapper)`
   width: 100%;
@@ -58,7 +46,7 @@ const IconBackground = styled.div`
   width: 48px;
   height: 48px;
   min-width: 48px;
-  background-color: ${props => props.theme.blue000};
+  background-color: ${(props) => props.theme.blue000};
   border-radius: 48px;
 `
 
@@ -82,7 +70,7 @@ const ButtonWrapper = styled.div`
 class WelcomeContainer extends React.PureComponent<Props> {
   state = { show: false }
 
-  componentDidMount () {
+  componentDidMount() {
     this.setState({ show: true }) //eslint-disable-line
   }
 
@@ -94,24 +82,23 @@ class WelcomeContainer extends React.PureComponent<Props> {
   }
 
   handleSBClick = () => {
+    const { cryptoCurrency } = this.props
     this.setState({ show: false })
     setTimeout(() => {
       this.props.close()
-      this.props.simpleBuyActions.showModal('WelcomeModal')
+      if (cryptoCurrency) {
+        this.props.simpleBuyActions.showModal('WelcomeModal', cryptoCurrency)
+      } else {
+        this.props.simpleBuyActions.showModal('WelcomeModal')
+      }
     }, duration / 2)
   }
 
-  render () {
+  render() {
     const { show } = this.state
     const { ...rest } = this.props
     return (
-      <Flyout
-        {...rest}
-        onClose={this.props.close}
-        in={show}
-        data-e2e='welcomeModal'
-        direction='left'
-      >
+      <Flyout {...rest} onClose={this.props.close} isOpen={show} data-e2e='welcomeModal'>
         <CustomFlyoutWrapper>
           <Header>
             <Image name='intro-hand' width='28px' height='28px' />
@@ -164,10 +151,7 @@ class WelcomeContainer extends React.PureComponent<Props> {
               onClick={this.handleClose}
               size='16px'
             >
-              <FormattedMessage
-                id='modals.wallet.welcome.sb.skip'
-                defaultMessage='Skip'
-              />
+              <FormattedMessage id='modals.wallet.welcome.sb.skip' defaultMessage='Skip' />
             </Button>
           </ButtonWrapper>
         </CustomFlyoutWrapper>
@@ -176,17 +160,34 @@ class WelcomeContainer extends React.PureComponent<Props> {
   }
 }
 
+const mapStateToProps = (state) => ({
+  cryptoCurrency: selectors.components.simpleBuy.getCryptoCurrency(state) || undefined
+})
+
 const mapDispatchToProps = (dispatch): LinkDispatchPropsType => ({
-  onboardingActions: bindActionCreators(
-    actions.components.onboarding,
-    dispatch
-  ),
+  onboardingActions: bindActionCreators(actions.components.onboarding, dispatch),
   simpleBuyActions: bindActionCreators(actions.components.simpleBuy, dispatch)
 })
 
+const connector = connect(mapStateToProps, mapDispatchToProps)
+
+type OwnPropsType = {
+  close: () => void
+  position: number
+  total: number
+  userClickedOutside: boolean
+}
+
+type LinkDispatchPropsType = {
+  onboardingActions: typeof actions.components.onboarding
+  simpleBuyActions: typeof actions.components.simpleBuy
+}
+
+type Props = OwnPropsType & LinkDispatchPropsType & ConnectedProps<typeof connector>
+
 const enhance = compose<any>(
-  modalEnhancer('WELCOME_MODAL', { transition: duration }),
-  connect(null, mapDispatchToProps)
+  modalEnhancer(ModalName.WELCOME_MODAL, { transition: duration }),
+  connector
 )
 
 export default enhance(WelcomeContainer)

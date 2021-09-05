@@ -1,26 +1,23 @@
-import { actions } from 'data'
-import { bindActionCreators, compose } from 'redux'
-import { concat, prop } from 'ramda'
-import { connect, ConnectedProps } from 'react-redux'
-import Navigation from './template'
 import React from 'react'
+import { connect, ConnectedProps } from 'react-redux'
+import { concat, prop } from 'ramda'
+import { bindActionCreators, compose } from 'redux'
+
+import { getCoinsSortedByBalance } from 'components/Balances/selectors'
+import { actions } from 'data'
 
 import { Props as OwnProps } from '../template.success'
+import Navigation from './template'
 
 class NavigationContainer extends React.PureComponent<Props> {
-  render () {
+  render() {
     const { domains } = this.props
 
-    return (
-      <Navigation
-        {...this.props}
-        exchangeUrl={concat(prop('exchange', domains), '/trade')}
-      />
-    )
+    return <Navigation {...this.props} exchangeUrl={concat(prop('exchange', domains), '/trade')} />
   }
 }
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(actions.components.layoutWallet, dispatch),
   analyticsActions: bindActionCreators(actions.analytics, dispatch),
   modalActions: bindActionCreators(actions.modals, dispatch),
@@ -28,10 +25,14 @@ const mapDispatchToProps = dispatch => ({
   simpleBuyActions: bindActionCreators(actions.components.simpleBuy, dispatch)
 })
 
-const connector = connect(null, mapDispatchToProps)
+const mapStateToProps = (state) => ({
+  coinList: getCoinsSortedByBalance(state)
+})
+
+const connector = connect(mapStateToProps, mapDispatchToProps)
 
 const enhance = compose(connector)
 
-export type Props = OwnProps & ConnectedProps<typeof connector>
+export type Props = OwnProps & ConnectedProps<typeof connector> & { lockboxDevices?: Array<any> }
 
 export default enhance(NavigationContainer)

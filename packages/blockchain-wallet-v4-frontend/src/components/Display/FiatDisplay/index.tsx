@@ -1,58 +1,55 @@
-import { bindActionCreators } from 'redux'
-import { connect, ConnectedProps } from 'react-redux'
-import { includes, toLower } from 'ramda'
 import React from 'react'
+import { connect, ConnectedProps } from 'react-redux'
+import { toLower } from 'ramda'
+import { bindActionCreators } from 'redux'
 
-import { actions, selectors } from 'data'
-import { CoinType, FiatTypeEnum } from 'blockchain-wallet-v4/src/types'
-import { getData } from './selectors'
 import { Remote } from 'blockchain-wallet-v4/src'
+import { CoinType } from 'blockchain-wallet-v4/src/types'
+import { actions, selectors } from 'data'
+
+import { getData } from './selectors'
 import Error from './template.error'
 import Loading from './template.loading'
 import Success from './template.success'
 
 class FiatDisplayContainer extends React.PureComponent<Props> {
-  componentDidMount () {
+  componentDidMount() {
     if (Remote.NotAsked.is(this.props.data)) {
-      const { coin, erc20List } = this.props
-      if (coin in FiatTypeEnum) {
+      const { coin } = this.props
+      const { coinfig } = window.coins[coin]
+      if (coinfig.type.name === 'FIAT') {
         return
       }
-      if (includes(coin, erc20List)) {
-        return this.props.ethActions.fetchErc20Rates(toLower(this.props.coin))
+      if (coinfig.type.erc20Address) {
+        return
+      }
+      if (selectors.core.data.coins.getCoins().includes(coin)) {
+        return
       }
       return this.props[`${toLower(coin)}Actions`].fetchRates()
     }
   }
 
-  render () {
+  render() {
     const { data, ...rest } = this.props
     return data.cata({
-      Success: value => <Success {...rest}>{value}</Success>,
       Failure: () => <Error {...rest} />,
       Loading: () => <Loading {...rest} />,
-      NotAsked: () => <Loading {...rest} />
+      NotAsked: () => <Loading {...rest} />,
+      Success: (value) => <Success {...rest}>{value}</Success>
     })
   }
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  data: getData(
-    state,
-    ownProps.coin,
-    ownProps.children,
-    ownProps.currency,
-    ownProps.rates
-  ),
-  erc20List: selectors.core.walletOptions.getErc20CoinList(state).getOrElse([])
+  data: getData(state, ownProps.coin, ownProps.children, ownProps.currency, ownProps.rates)
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   bchActions: bindActionCreators(actions.core.data.bch, dispatch),
   btcActions: bindActionCreators(actions.core.data.btc, dispatch),
   ethActions: bindActionCreators(actions.core.data.eth, dispatch),
-  xlmActions: bindActionCreators(actions.core.data.xlm, dispatch),
-  algoActions: bindActionCreators(actions.core.data.algo, dispatch)
+  xlmActions: bindActionCreators(actions.core.data.xlm, dispatch)
 })
 
 const connector = connect(mapStateToProps, mapDispatchToProps)

@@ -1,5 +1,6 @@
-import { createDeepEqualSelector } from 'services/ReselectHelper'
 import { includes, keys, prop } from 'ramda'
+
+import { createDeepEqualSelector } from 'blockchain-wallet-v4/src/utils'
 import { selectors } from 'data'
 
 export const getData = createDeepEqualSelector(
@@ -15,15 +16,14 @@ export const getData = createDeepEqualSelector(
     const announcement = prop(alertArea, announcements)
     if (keys(announcement).length) {
       const announcement = announcements[alertArea]
-      const cachedState =
-        announcementCached && announcementCached[announcement.id]
+      const cachedState = announcementCached && announcementCached[announcement.id]
       const showAnnouncement = prop('coins', announcement)
         ? includes(currentCoin, prop('coins', announcement))
         : !(cachedState && cachedState.dismissed)
       return {
-        announcements: announcements,
+        announcements,
         collapsed: cachedState && cachedState.collapsed,
-        language: language,
+        language,
         showAnnouncement
       }
     }

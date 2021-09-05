@@ -1,19 +1,17 @@
-import { add, lift, pathOr, reduce, toLower } from 'ramda'
-
-import { CoinType, RemoteDataType } from 'core/types'
-import { createDeepEqualSelector } from 'services/ReselectHelper'
-import { Remote } from 'blockchain-wallet-v4/src'
-
-import { INVALID_COIN_TYPE } from 'blockchain-wallet-v4/src/model'
-import { selectors } from 'data'
 import BigNumber from 'bignumber.js'
+import { add, lift, pathOr, reduce } from 'ramda'
+
+import { Remote } from 'blockchain-wallet-v4/src'
+import { CoinType, RemoteDataType } from 'blockchain-wallet-v4/src/types'
+import { createDeepEqualSelector } from 'blockchain-wallet-v4/src/utils'
+import { selectors } from 'data'
 
 // only hd accounts, no imported addresses
 export const getBtcBalance = createDeepEqualSelector(
   [selectors.core.common.btc.getActiveHDAccounts],
-  accountsR => {
-    const getBalances = balances => {
-      const walletBalances: Array<number> = balances.map(account =>
+  (accountsR) => {
+    const getBalances = (balances) => {
+      const walletBalances: Array<number> = balances.map((account) =>
         pathOr(0, ['info', 'final_balance'], account)
       )
       return walletBalances
@@ -27,9 +25,9 @@ export const getBtcBalance = createDeepEqualSelector(
 // only hd accounts, no imported addresses
 export const getBchBalance = createDeepEqualSelector(
   [selectors.core.common.bch.getActiveHDAccounts],
-  accountsR => {
-    const getBalances = balances => {
-      const walletBalances: Array<number> = balances.map(account =>
+  (accountsR) => {
+    const getBalances = (balances) => {
+      const walletBalances: Array<number> = balances.map((account) =>
         pathOr(0, ['info', 'final_balance'], account)
       )
       return walletBalances
@@ -44,13 +42,12 @@ export const getEthBalance = createDeepEqualSelector(
   [selectors.core.kvStore.eth.getContext, selectors.core.data.eth.getAddresses],
   (context, addressesR) => {
     const contextToBalances = (context, balances) =>
-      context.map(a => pathOr(0, [a, 'balance'], balances))
+      context.map((a) => pathOr(0, [a, 'balance'], balances))
 
-    const balancesR: RemoteDataType<
-      string,
-      RemoteDataType<string, string>
-    > = lift(contextToBalances)(Remote.of(context), addressesR)
-    return balancesR.map(b => {
+    const balancesR: RemoteDataType<string, RemoteDataType<string, string>> = lift(
+      contextToBalances
+    )(Remote.of(context), addressesR)
+    return balancesR.map((b) => {
       return new BigNumber(b.getOrElse('0'))
     })
   }
@@ -58,22 +55,20 @@ export const getEthBalance = createDeepEqualSelector(
 
 export const getXlmBalance = createDeepEqualSelector(
   [
-    state =>
+    (state) =>
       selectors.core.kvStore.xlm
         .getDefaultAccountId(state)
-        .map(accountId =>
-          selectors.core.data.xlm.getBalance(state, accountId).getOrElse(0)
-        )
+        .map((accountId) => selectors.core.data.xlm.getBalance(state, accountId).getOrElse(0))
   ],
-  balanceR => {
+  (balanceR) => {
     return Remote.of(new BigNumber(balanceR.getOrElse(0)))
   }
 )
 
-export const getErc20Balance = coin =>
+export const getErc20NonCustodialBalance = (coin) =>
   createDeepEqualSelector(
-    [state => selectors.core.data.eth.getErc20Balance(state, coin)],
-    balanceR => {
+    [(state) => selectors.core.data.eth.getErc20Balance(state, coin)],
+    (balanceR) => {
       return Remote.of(new BigNumber(balanceR.getOrElse(0)))
     }
   )
@@ -88,10 +83,8 @@ export const getBalanceSelector = (coin: CoinType) => {
       return getEthBalance
     case 'XLM':
       return getXlmBalance
-    case 'PAX':
-    case 'USDT':
-      return getErc20Balance(toLower(coin))
+    // TODO: FIX erc20 is default
     default:
-      return Remote.Failure(INVALID_COIN_TYPE)
+      return getErc20NonCustodialBalance(coin)
   }
 }

@@ -1,12 +1,13 @@
+import { WalletFiatType } from 'blockchain-wallet-v4/src/types'
+
 import * as AT from './actionTypes'
-import { WalletFiatType } from 'core/types'
 
 export const initialized = (currency: WalletFiatType) => ({
-  type: AT.FIAT_TRANSACTIONS_INITIALIZED,
-  payload: { currency }
+  payload: { currency },
+  type: AT.FIAT_TRANSACTIONS_INITIALIZED
 })
 
 export const loadMore = (currency: WalletFiatType) => ({
-  type: AT.FIAT_TRANSACTIONS_LOAD_MORE,
-  payload: { currency }
+  payload: { currency },
+  type: AT.FIAT_TRANSACTIONS_LOAD_MORE
 })

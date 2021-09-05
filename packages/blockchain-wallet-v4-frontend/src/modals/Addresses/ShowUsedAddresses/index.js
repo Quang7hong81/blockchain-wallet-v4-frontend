@@ -1,27 +1,25 @@
-import { bindActionCreators, compose } from 'redux'
-import { connect } from 'react-redux'
 import React from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators, compose } from 'redux'
 
 import { actions } from 'data'
 import modalEnhancer from 'providers/ModalEnhancer'
+
 import ShowUsedAddresses from './template'
 
 class ShowUsedAddressesContainer extends React.PureComponent {
-  constructor (props) {
-    super(props)
-    this.state = { busy: false }
-    this.handleContinue = this.handleContinue.bind(this)
-  }
+  state = { busy: false }
 
-  handleContinue () {
+  handleContinue = () => {
+    const { derivation, walletIndex } = this.props
     this.setState({ busy: true })
     // ensure busy is set before address derivation begins
     setTimeout(() => {
-      this.props.actions.toggleUsedAddresses(this.props.walletIndex, true)
+      this.props.actions.toggleUsedAddresses(walletIndex, derivation, true)
     }, 0)
   }
 
-  render () {
+  render() {
     return (
       <ShowUsedAddresses
         {...this.props}
@@ -32,18 +30,12 @@ class ShowUsedAddressesContainer extends React.PureComponent {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  modalActions: bindActionCreators(actions.modals, dispatch),
+const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(actions.components.manageAddresses, dispatch),
-  componentActions: bindActionCreators(
-    actions.components.manageAddresses,
-    dispatch
-  )
+  componentActions: bindActionCreators(actions.components.manageAddresses, dispatch),
+  modalActions: bindActionCreators(actions.modals, dispatch)
 })
 
-const enhance = compose(
-  modalEnhancer('ShowUsedAddresses'),
-  connect(undefined, mapDispatchToProps)
-)
+const enhance = compose(modalEnhancer('SHOW_USED_ADDRESS_MODAL'), connect(null, mapDispatchToProps))
 
 export default enhance(ShowUsedAddressesContainer)

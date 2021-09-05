@@ -1,8 +1,8 @@
-import { Text } from 'blockchain-info-components'
 import React from 'react'
 import styled from 'styled-components'
 
-import media from 'services/ResponsiveService'
+import { Text } from 'blockchain-info-components'
+import { media } from 'services/styles'
 
 const Wrapper = styled.div`
   display: flex;
@@ -12,25 +12,15 @@ const Wrapper = styled.div`
 `
 const CoinText = styled(Text)<{ mobileSize: string }>`
   white-space: nowrap;
-  font-size: ${props => props.mobileSize};
-  text-transform: ${props => (props.italic ? 'italic' : 'none')};
+  font-size: ${(props) => props.mobileSize};
+  text-transform: ${(props) => (props.italic ? 'italic' : 'none')};
   ${media.atLeastMobile`
-    font-size: ${props => props.size};
+    font-size: ${(props) => props.size};
   `}
 `
 
-const CoinDisplay = props => {
-  const {
-    coin,
-    children,
-    italic,
-    size,
-    weight,
-    color,
-    cursor,
-    mobileSize,
-    ...rest
-  } = props
+const CoinDisplay = (props) => {
+  const { children, coin, color, cursor, italic, mobileSize, size, weight, ...rest } = props
   return (
     <Wrapper {...rest}>
       <CoinText
@@ -39,8 +29,9 @@ const CoinDisplay = props => {
         weight={weight}
         italic={italic}
         color={color}
-        cursor={cursor}
+        cursor={cursor || undefined}
         data-e2e={`${coin}Amt`}
+        {...rest}
       >
         {children}
       </CoinText>
@@ -49,11 +40,11 @@ const CoinDisplay = props => {
 }
 
 CoinDisplay.defaultProps = {
-  size: '16px',
-  weight: 300,
   color: 'grey700',
   cursor: 'auto',
-  mobileSize: ''
+  mobileSize: '',
+  size: '16px',
+  weight: 300
 }
 
 export default CoinDisplay

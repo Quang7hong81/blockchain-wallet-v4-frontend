@@ -1,27 +1,24 @@
-import { actions } from 'data'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import AddDevice from './template'
-import PropTypes from 'prop-types'
 import React from 'react'
+import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
+import { bindActionCreators } from 'redux'
+
+import { actions } from 'data'
+
+import AddDevice from './template'
 
 class AddDeviceContainer extends React.PureComponent {
   onClick = () => {
     this.props.lockboxActions.changeDeviceSetupStep('device-select')
-    this.props.modalActions.showModal('LockboxSetup')
+    this.props.modalActions.showModal('LOCKBOX_SETUP_MODAL')
   }
 
-  render () {
-    return (
-      <AddDevice
-        onClick={this.onClick}
-        isBrowserSupported={this.props.isBrowserSupported}
-      />
-    )
+  render() {
+    return <AddDevice onClick={this.onClick} isBrowserSupported={this.props.isBrowserSupported} />
   }
 }
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   lockboxActions: bindActionCreators(actions.components.lockbox, dispatch),
   modalActions: bindActionCreators(actions.modals, dispatch)
 })

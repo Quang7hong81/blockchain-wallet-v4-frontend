@@ -1,32 +1,21 @@
-import { formValueSelector } from 'redux-form'
-import { model, selectors } from 'data'
+import * as Bitcoin from 'bitcoinjs-lib'
 import { path, prop } from 'ramda'
-import Bitcoin from 'bitcoinjs-lib'
+import { formValueSelector } from 'redux-form'
 
-export const getData = state => {
-  const amount = formValueSelector(model.components.sendBch.FORM)(
-    state,
-    'amount'
-  )
-  const destination = formValueSelector(model.components.sendBch.FORM)(
-    state,
-    'to'
-  )
+import { model, selectors } from 'data'
+
+export const getData = (state) => {
+  const amount = formValueSelector(model.components.sendBch.FORM)(state, 'amount')
+  const destination = formValueSelector(model.components.sendBch.FORM)(state, 'to')
   const from = formValueSelector(model.components.sendBch.FORM)(state, 'from')
 
   const paymentR = selectors.components.sendBch.getPayment(state)
-  const availability = selectors.core.walletOptions.getCoinAvailability(
-    state,
-    'BCH'
-  )
-  const excludeLockbox = !availability.map(prop('lockbox')).getOrElse(true)
-  const networkType = selectors.core.walletOptions
-    .getBtcNetwork(state)
-    .getOrElse('bitcoin')
+  const excludeLockbox = false
+  const networkType = 'bitcoin'
   const isMnemonicVerified = selectors.core.wallet.isMnemonicVerified(state)
   const network = Bitcoin.networks[networkType]
 
-  const transform = payment => {
+  const transform = (payment) => {
     const minFeePerByte = path(['fees', 'limit', 'min'], payment)
     const maxFeePerByte = path(['fees', 'limit', 'max'], payment)
     const totalFee = path(['selection', 'fee'], payment)
@@ -48,3 +37,5 @@ export const getData = state => {
 
   return paymentR.map(transform)
 }
+
+export default getData

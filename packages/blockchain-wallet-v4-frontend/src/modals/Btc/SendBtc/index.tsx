@@ -1,9 +1,12 @@
-import { actions, model, selectors } from 'data'
-import { bindActionCreators, compose } from 'redux'
-import { connect } from 'react-redux'
-import FirstStep from './FirstStep'
-import modalEnhancer from 'providers/ModalEnhancer'
 import React from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators, compose } from 'redux'
+
+import { actions, selectors } from 'data'
+import { ModalName } from 'data/types'
+import modalEnhancer from 'providers/ModalEnhancer'
+
+import FirstStep from './FirstStep'
 import SecondStep from './SecondStep'
 import SendBtc from './template'
 
@@ -26,34 +29,25 @@ type LinkDispatchPropsType = {
 type Props = OwnProps & LinkDispatchPropsType
 
 class SendBtcContainer extends React.PureComponent<Props> {
-  componentDidMount () {
-    const { from, to, description, amount, lockboxIndex, payPro } = this.props
+  componentDidMount() {
+    const { amount, description, from, lockboxIndex, payPro, to } = this.props
     this.props.actions.initialized({
-      from,
-      to,
-      description,
       amount,
+      description,
+      from,
       lockboxIndex,
-      payPro
+      payPro,
+      to
     })
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.props.actions.destroyed()
   }
 
-  render () {
-    const {
-      to,
-      step,
-      total,
-      amount,
-      position,
-      closeAll,
-      description,
-      excludeHDWallets,
-      payPro
-    } = this.props
+  render() {
+    const { amount, closeAll, description, excludeHDWallets, payPro, position, step, to, total } =
+      this.props
 
     return (
       <SendBtc position={position} total={total} closeAll={closeAll}>
@@ -72,16 +66,16 @@ class SendBtcContainer extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   step: selectors.components.sendBtc.getStep(state)
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(actions.components.sendBtc, dispatch)
 })
 
 const enhance = compose(
-  modalEnhancer(model.components.sendBtc.MODAL),
+  modalEnhancer(ModalName.SEND_BTC_MODAL),
   connect(mapStateToProps, mapDispatchToProps)
 )
 

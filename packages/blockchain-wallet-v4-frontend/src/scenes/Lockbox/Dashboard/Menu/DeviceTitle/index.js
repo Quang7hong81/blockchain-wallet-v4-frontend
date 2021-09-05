@@ -1,12 +1,12 @@
-import { actions } from 'data'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { Icon, Text } from 'blockchain-info-components'
-import { LinkContainer } from 'react-router-bootstrap'
 import React from 'react'
+import { connect } from 'react-redux'
+import { LinkContainer } from 'react-router-bootstrap'
+import { bindActionCreators } from 'redux'
 import styled from 'styled-components'
 
-import media from 'services/ResponsiveService'
+import { Icon, Text } from 'blockchain-info-components'
+import { actions } from 'data'
+import { media } from 'services/styles'
 
 const Wrapper = styled.div`
   display: flex;
@@ -24,7 +24,7 @@ const ToggleIcon = styled(Icon)`
   transition: color 0.3s;
   &:hover {
     cursor: pointer;
-    color: ${props => props.theme.blue600};
+    color: ${(props) => props.theme.blue600};
   }
 `
 const RightCol = styled.div`
@@ -42,13 +42,13 @@ const RightCol = styled.div`
 
 class DeviceTitle extends React.PureComponent {
   // onOpenAppManager = () => {
-  //   this.props.modalActions.showModal('LockboxAppManager', {
+  //   this.props.modalActions.showModal('LOCKBOX_APP_MANAGER_MODAL', {
   //     deviceIndex: this.props.deviceIndex
   //   })
   // }
 
-  render () {
-    const { deviceInfo, deviceIndex, location } = this.props
+  render() {
+    const { deviceIndex, deviceInfo, location } = this.props
     const onDashboard = location.pathname.includes('/lockbox/dashboard')
     const linkTo = onDashboard
       ? `/lockbox/settings/${deviceIndex}`
@@ -75,7 +75,7 @@ class DeviceTitle extends React.PureComponent {
           {/*  /> */}
           {/* </Button> */}
           <LinkContainer to={linkTo} className='tour-step5'>
-            <ToggleIcon name={icon} size={'24px'} />
+            <ToggleIcon name={icon} size='24px' />
           </LinkContainer>
         </RightCol>
       </Wrapper>
@@ -87,7 +87,7 @@ class DeviceTitle extends React.PureComponent {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   modalActions: bindActionCreators(actions.modals, dispatch)
 })
 

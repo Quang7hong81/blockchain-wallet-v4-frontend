@@ -1,84 +1,66 @@
-import { CoinType, FiatType } from 'core/types'
-import { equals, toUpper } from 'ramda'
 import { Moment } from 'moment'
+
+import { CoinfigType, CoinType, FiatType } from 'core/types'
+
 import { PriceIndexResponseType } from './types'
 
-export default ({ rootUrl, apiUrl, get, post }) => {
-  const getCaptchaImage = (timestamp, sessionToken) =>
+export default ({ apiUrl, get, post }) => {
+  const getAssets = (): { currencies: CoinfigType[] } =>
     get({
-      url: rootUrl,
-      endPoint: '/kaptcha.jpg',
-      responseType: 'blob',
-      data: { timestamp },
-      sessionToken
+      endPoint: '/assets/currencies/custodial',
+      url: apiUrl
     })
 
-  const getTransactionHistory = (coin, active, currency, start, end) => {
-    const isBCH = equals(coin, 'BCH')
-    const endpoint = '/v2/export-history'
-    return post({
-      url: isBCH ? apiUrl : rootUrl,
-      endPoint: isBCH ? '/bch' + endpoint : endpoint,
-      data: { active, currency: toUpper(currency), start, end }
-    })
-  }
-
-  const getLogs = (guid, sharedKey) =>
-    post({
-      url: rootUrl,
-      endPoint: '/wallet',
-      data: { guid, sharedKey, method: 'list-logs', format: 'json' }
-    })
-
-  const getPriceIndex = (
-    base: CoinType,
-    quote: FiatType,
-    time: Moment
-  ): PriceIndexResponseType =>
+  const getPriceIndex = (base: CoinType, quote: FiatType, time: Moment): PriceIndexResponseType =>
     get({
-      url: apiUrl,
+      data: { base, quote, time: time.unix() },
       endPoint: '/price/index',
-      data: { base, quote, time: time.unix() }
+      url: apiUrl
     })
 
   const getPriceIndexSeries = (coin, currency, start, scale) =>
     get({
-      url: apiUrl,
+      data: { base: coin, quote: currency, scale, start },
       endPoint: '/price/index-series',
-      data: { base: coin, quote: currency, start: start, scale: scale }
+      url: apiUrl
     })
 
   const getPriceTimestampSeries = (coin, currency, txTimestampList) =>
     post({
-      url: apiUrl,
-      endPoint: `/price/index-series?base=${coin}&quote=${currency}`,
       contentType: 'application/json',
+      data: txTimestampList,
+      endPoint: `/price/index-series?base=${coin}&quote=${currency}`,
       removeDefaultPostData: true,
-      data: txTimestampList
+      url: apiUrl
     })
 
   const getRandomBytes = (bytes, format) =>
     get({
-      url: apiUrl,
+      data: { bytes, format },
       endPoint: '/v2/randombytes',
-      data: { bytes, format }
+      url: apiUrl
     })
 
-  const getWalletNUsers = () =>
-    get({
-      url: apiUrl,
-      ignoreQueryParams: true,
-      endPoint: '/charts/my-wallet-n-users?cors=true'
+  const triggerWalletMagicLink = (email, captchaToken, sessionToken) => {
+    post({
+      contentType: 'application/json',
+      data: {
+        captcha: captchaToken,
+        email,
+        product: 'wallet',
+        siteKey: window.CAPTCHA_KEY
+      },
+      endPoint: '/auth/email-reminder',
+      sessionToken,
+      url: apiUrl
     })
-
+  }
   return {
-    getCaptchaImage,
-    getTransactionHistory,
-    getLogs,
+    getAssets,
     getPriceIndex,
     getPriceIndexSeries,
     getPriceTimestampSeries,
     getRandomBytes,
-    getWalletNUsers
+    triggerWalletMagicLink
   }
 }

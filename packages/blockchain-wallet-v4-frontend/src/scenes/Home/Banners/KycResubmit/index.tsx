@@ -1,13 +1,11 @@
-import { actions, model } from 'data'
-import { Button, Text } from 'blockchain-info-components'
-import { connect } from 'react-redux'
-import { FormattedMessage } from 'react-intl'
 import React from 'react'
+import { FormattedMessage } from 'react-intl'
+import { connect } from 'react-redux'
 import styled from 'styled-components'
 
-import media from 'services/ResponsiveService'
-
-const { TIERS } = model.profile
+import { Button, Text } from 'blockchain-info-components'
+import { actions } from 'data'
+import { media } from 'services/styles'
 
 const Wrapper = styled.div`
   display: flex;
@@ -15,7 +13,7 @@ const Wrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   box-sizing: border-box;
-  background-color: ${props => props.theme.grey000};
+  background-color: ${(props) => props.theme.grey000};
   border-radius: 4px;
   overflow: hidden;
   padding: 20px;
@@ -28,7 +26,7 @@ const Wrapper = styled.div`
 `
 
 const Column = styled.div<{ hiddenOnMobile?: boolean }>`
-  display: ${props => (props.hiddenOnMobile ? 'none' : 'flex')};
+  display: ${(props) => (props.hiddenOnMobile ? 'none' : 'flex')};
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
@@ -40,14 +38,14 @@ const Column = styled.div<{ hiddenOnMobile?: boolean }>`
   }
 `
 const Title = styled(Text)`
-  color: ${props => props.theme['marketing-primary']};
+  color: ${(props) => props.theme.grey900};
   margin-bottom: 4px;
 `
 
 const ResubmitBtn = styled(Button).attrs({
+  height: '40px',
   nature: 'primary',
-  width: '150px',
-  height: '40px'
+  width: '150px'
 })`
   font-weight: 500;
 `
@@ -55,16 +53,16 @@ const ResubmitBtn = styled(Button).attrs({
 const KycResubmit = ({ verifyIdentity }) => (
   <Wrapper>
     <Column>
-      <Title size='16px' weight={500}>
+      <Title size='20px' weight={600}>
         <FormattedMessage
           id='scenes.home.banners.kycresubmit.title'
           defaultMessage='Documents Needed'
         />
       </Title>
-      <Text size='13px' weight={400}>
+      <Text size='14px' weight={500} color='grey900'>
         <FormattedMessage
-          id='scenes.home.banners.kycresubmit.subtitle'
-          defaultMessage="We had some issues with the documents you've supplied.  Please try uploading the documents again to continue with your verification."
+          id='scenes.home.banners.kycresubmit.copy'
+          defaultMessage='Please re-verify your identity to access our full products and services.'
         />
       </Text>
     </Column>
@@ -79,14 +77,14 @@ const KycResubmit = ({ verifyIdentity }) => (
   </Wrapper>
 )
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   verifyIdentity: () =>
     dispatch(
-      actions.components.identityVerification.verifyIdentity(
-        TIERS[2],
-        true,
-        'KycDocResubmitGoal'
-      )
+      actions.components.identityVerification.verifyIdentity({
+        needMoreInfo: false,
+        origin: 'Resubmission',
+        tier: 2
+      })
     )
 })
 

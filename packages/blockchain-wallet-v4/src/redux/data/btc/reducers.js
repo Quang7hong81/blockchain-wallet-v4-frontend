@@ -1,15 +1,7 @@
-import * as AT from './actionTypes'
-import {
-  append,
-  assoc,
-  assocPath,
-  compose,
-  dropLast,
-  lensProp,
-  merge,
-  over
-} from 'ramda'
+import { append, assoc, assocPath, compose, dropLast, lensProp, merge, over } from 'ramda'
+
 import Remote from '../../../remote'
+import * as AT from './actionTypes'
 
 const INITIAL_STATE = {
   addresses: Remote.NotAsked,
@@ -17,15 +9,15 @@ const INITIAL_STATE = {
   info: Remote.NotAsked,
   latest_block: Remote.NotAsked,
   rates: Remote.NotAsked,
+  transaction_history: Remote.NotAsked,
   transactions: [],
-  transactions_fiat: {},
   transactions_at_bound: false,
-  unspendable_balance: Remote.NotAsked,
-  transaction_history: Remote.NotAsked
+  transactions_fiat: {},
+  unspendable_balance: Remote.NotAsked
 }
 
 const btcReducer = (state = INITIAL_STATE, action) => {
-  const { type, payload } = action
+  const { payload, type } = action
 
   switch (type) {
     case AT.SET_BTC_LATEST_BLOCK: {
@@ -99,28 +91,16 @@ const btcReducer = (state = INITIAL_STATE, action) => {
       return assoc('transactions_at_bound', payload, state)
     }
     case AT.FETCH_BTC_FIAT_AT_TIME_LOADING: {
-      const { hash, currency } = payload
-      return assocPath(
-        ['transactions_fiat', hash, currency],
-        Remote.Loading,
-        state
-      )
+      const { currency, hash } = payload
+      return assocPath(['transactions_fiat', hash, currency], Remote.Loading, state)
     }
     case AT.FETCH_BTC_FIAT_AT_TIME_SUCCESS: {
-      const { hash, currency, data } = payload
-      return assocPath(
-        ['transactions_fiat', hash, currency],
-        Remote.Success(data),
-        state
-      )
+      const { currency, data, hash } = payload
+      return assocPath(['transactions_fiat', hash, currency], Remote.Success(data), state)
     }
     case AT.FETCH_BTC_FIAT_AT_TIME_FAILURE: {
-      const { hash, currency, error } = payload
-      return assocPath(
-        ['transactions_fiat', hash, currency],
-        Remote.Success(error),
-        state
-      )
+      const { currency, error, hash } = payload
+      return assocPath(['transactions_fiat', hash, currency], Remote.Success(error), state)
     }
     case AT.FETCH_BTC_TRANSACTION_HISTORY_LOADING: {
       return assoc('transaction_history', Remote.Loading, state)

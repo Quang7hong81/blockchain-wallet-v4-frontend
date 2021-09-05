@@ -1,18 +1,18 @@
-import { actions } from 'data'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { getData } from './selectors'
-import Error from './template.error'
-import Loading from './template.loading'
 import React from 'react'
-import Success from './template.success'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+
+import { actions } from 'data'
+
+import { getData } from './selectors'
+import Yubikey from './template'
 
 class YubikeyContainer extends React.PureComponent {
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {
-      updateToggled: false,
       successToggled: false,
+      updateToggled: false,
       yubikeyCode: ''
     }
     this.handleClick = this.handleClick.bind(this)
@@ -20,7 +20,7 @@ class YubikeyContainer extends React.PureComponent {
     this.handleInput = this.handleInput.bind(this)
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     const next = this.props.data.getOrElse({})
     const prev = prevProps.data.getOrElse({})
     if (next.authType !== prev.authType) {
@@ -29,29 +29,31 @@ class YubikeyContainer extends React.PureComponent {
       this.props.goBackOnSuccess()
     }
   }
-  handleUpdate () {
+
+  handleUpdate() {
     this.setState({ successToggled: true })
   }
 
-  handleClick () {
-    this.props.modalActions.showModal('TwoStepSetup')
+  handleClick() {
+    this.props.modalActions.showModal('TWO_STEP_SETUP_MODAL')
   }
 
-  onSubmit () {
+  onSubmit() {
     this.props.securityCenterActions.setYubikey(this.state.yubikeyCode)
   }
 
-  handleInput (e) {
+  handleInput(e) {
     e.preventDefault()
     this.setState({ yubikeyCode: e.target.value })
   }
 
-  render () {
-    const { data, ...rest } = this.props
-
-    return data.cata({
-      Success: value => (
-        <Success
+  render() {
+    return this.props.data.cata({
+      Failure: () => null,
+      Loading: () => null,
+      NotAsked: () => null,
+      Success: (value) => (
+        <Yubikey
           data={value}
           handleClick={this.handleClick}
           onSubmit={this.onSubmit}
@@ -60,25 +62,19 @@ class YubikeyContainer extends React.PureComponent {
           value={this.state.yubikeyCode}
           uiState={this.state}
         />
-      ),
-      Failure: message => <Error {...rest} message={message} />,
-      Loading: () => <Loading {...rest} />,
-      NotAsked: () => <Loading {...rest} />
+      )
     })
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   data: getData(state)
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   modalActions: bindActionCreators(actions.modals, dispatch),
-  settingsActions: bindActionCreators(actions.core.settings, dispatch),
-  securityCenterActions: bindActionCreators(
-    actions.modules.securityCenter,
-    dispatch
-  )
+  securityCenterActions: bindActionCreators(actions.modules.securityCenter, dispatch),
+  settingsActions: bindActionCreators(actions.core.settings, dispatch)
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(YubikeyContainer)

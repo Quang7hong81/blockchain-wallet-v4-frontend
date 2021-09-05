@@ -1,7 +1,8 @@
-import { FormattedMessage } from 'react-intl'
-import { Link, Text, TextGroup, Tooltip } from 'blockchain-info-components'
 import React from 'react'
+import { FormattedMessage } from 'react-intl'
 import styled from 'styled-components'
+
+import { Link, Text, TextGroup, Tooltip } from 'blockchain-info-components'
 
 // TODO: remove this
 // Hide tooltips on IE Edge because of a CSP issue
@@ -11,7 +12,7 @@ const TooltipWrapper = styled.div`
   }
 `
 class Tooltips extends React.PureComponent {
-  render () {
+  render() {
     return (
       <TooltipWrapper>
         <Tooltip id='copied'>
@@ -157,20 +158,18 @@ class Tooltips extends React.PureComponent {
           />
         </Tooltip>
         <Tooltip id='scenes.interest.legaldisclaimer'>
-          <TextGroup block style={{ paddingTop: '8px' }}>
-            <Text size='12px' weight={500} color='white'>
-              <FormattedMessage
-                id='scenes.interest.legal.one'
-                defaultMessage='Digital/virtual currencies are not bank deposits, are not legal tender, are not backed by the government, and accounts and value balances are not subject to US Federal Deposit Insurance Corporation or Securities Investor Protection Corporation or any other non-US governmental or government-backed protections.'
-              />
-            </Text>
-            <Text size='12px' weight={500} color='white'>
-              <FormattedMessage
-                id='scenes.interest.legal.two'
-                defaultMessage='Legislative and regulatory changes or actions at the US State, Federal, or international level may adversely affect the use, transfer, exchange, and value of digital/virtual currencies.'
-              />
-            </Text>
-          </TextGroup>
+          <div style={{ marginBottom: '8px' }}>
+            <FormattedMessage
+              id='scenes.interest.legal.one'
+              defaultMessage='Digital/virtual currencies are not bank deposits, are not legal tender, are not backed by the government, and accounts and value balances are not subject to US Federal Deposit Insurance Corporation or Securities Investor Protection Corporation or any other non-US governmental or government-backed protections.'
+            />
+          </div>
+          <div>
+            <FormattedMessage
+              id='scenes.interest.legal.two'
+              defaultMessage='Legislative and regulatory changes or actions at the US State, Federal, or international level may adversely affect the use, transfer, exchange, and value of digital/virtual currencies.'
+            />
+          </div>
         </Tooltip>
         <Tooltip id='sendbtc.firststep.sharetooltip'>
           <FormattedMessage
@@ -218,12 +217,6 @@ class Tooltips extends React.PureComponent {
             defaultMessage='Verify a message signed by the owner of a particular Bitcoin address.'
           />
         </Tooltip>
-        <Tooltip id='whatsnew.tooltip'>
-          <FormattedMessage
-            id='whatsnew.tooltip.description'
-            defaultMessage="What's New"
-          />
-        </Tooltip>
         <Tooltip id='lockboxRequired'>
           <FormattedMessage
             id='lockboxrequired.tooltip'
@@ -269,30 +262,6 @@ class Tooltips extends React.PureComponent {
               defaultMessage='connected'
             />
           </Text>
-        </Tooltip>
-        <Tooltip id='borrow.amount.tooltip'>
-          <FormattedMessage
-            id='borrow.amount.tooltip.description'
-            defaultMessage='This amount does not include the required collateral network fee.'
-          />
-        </Tooltip>
-        <Tooltip id='borrow.interest.tooltip'>
-          <FormattedMessage
-            id='borrow.interest.tooltip.description'
-            defaultMessage='Interest will be taken from the collateral deposited on a monthly basis.'
-          />
-        </Tooltip>
-        <Tooltip id='borrow.collateral.tooltip'>
-          <FormattedMessage
-            id='borrow.collateral.tooltip.description'
-            defaultMessage='The amount you need to deposit to open this loan.'
-          />
-        </Tooltip>
-        <Tooltip id='borrow.collateralpending.tooltip'>
-          <FormattedMessage
-            id='borrow.collateralpending.tooltip.description'
-            defaultMessage='The collateral deposit is pending until it is confirmed by the network and a Blockchain.com agent.'
-          />
         </Tooltip>
         <Tooltip id='transaction.pending.eth'>
           <FormattedMessage
@@ -342,10 +311,10 @@ class Tooltips extends React.PureComponent {
             defaultMessage='Interest accrues daily and is paid monthly. The interest rate may be periodically adjusted.'
           />
         </Tooltip>
-        <Tooltip id='modals.withdraw.info_tooltip' maxWidth='250px'>
+        <Tooltip id='copy.on_chain_txs' maxWidth='250px'>
           <FormattedMessage
-            id='modals.withdraw.info_tooltip'
-            defaultMessage='The remaining balance will be available to be withdrawn within 3 days.'
+            id='copy.on_chain_txs'
+            defaultMessage='On-chain transactions only'
           />
         </Tooltip>
       </TooltipWrapper>

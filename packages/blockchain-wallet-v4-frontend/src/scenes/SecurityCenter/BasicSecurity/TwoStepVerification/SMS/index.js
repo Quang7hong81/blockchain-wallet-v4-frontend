@@ -1,20 +1,20 @@
-import { actions } from 'data'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { formValueSelector } from 'redux-form'
-import { getData } from './selectors'
-import Error from './template.error'
-import Loading from './template.loading'
 import React from 'react'
-import Success from './template.success'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import { formValueSelector } from 'redux-form'
+
+import { actions } from 'data'
+
+import { getData } from './selectors'
+import Sms from './template'
 
 class SmsAuthContainer extends React.PureComponent {
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {
       changeNumberToggled: false,
-      verifyMobileNumberStep: false,
-      successToggled: false
+      successToggled: false,
+      verifyMobileNumberStep: false
     }
     this.handleMount = this.handleMount.bind(this)
     this.handleUpdate = this.handleUpdate.bind(this)
@@ -22,15 +22,15 @@ class SmsAuthContainer extends React.PureComponent {
     this.onSubmit = this.onSubmit.bind(this)
   }
 
-  componentDidMount () {
-    const { smsVerified, smsNumber } = this.props.data.getOrElse({})
+  componentDidMount() {
+    const { smsNumber, smsVerified } = this.props.data.getOrElse({})
     if (smsNumber && smsNumber.length && !smsVerified) {
       this.props.securityCenterActions.sendMobileVerificationCode(smsNumber)
       this.handleMount()
     }
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     const next = this.props.data.getOrElse({})
     const prev = prevProps.data.getOrElse({})
     if (next.authType !== prev.authType) {
@@ -39,28 +39,28 @@ class SmsAuthContainer extends React.PureComponent {
       this.props.goBackOnSuccess()
     }
   }
-  handleMount () {
+
+  handleMount() {
     this.setState({
       changeNumberToggled: !this.state.changeNumberToggled
     })
   }
-  handleUpdate () {
+
+  handleUpdate() {
     this.setState({
       successToggled: !this.state.successToggled
     })
   }
 
-  handleClick () {
-    this.props.modalActions.showModal('TwoStepSetup')
+  handleClick() {
+    this.props.modalActions.showModal('TWO_STEP_SETUP_MODAL')
   }
 
-  onSubmit () {
+  onSubmit() {
     const { smsNumber, smsVerified } = this.props.data.getOrElse({})
 
     if (this.state.changeNumberToggled || (!smsNumber && !smsVerified)) {
-      this.props.securityCenterActions.sendMobileVerificationCode(
-        this.props.mobileNumber
-      )
+      this.props.securityCenterActions.sendMobileVerificationCode(this.props.mobileNumber)
       this.setState({
         changeNumberToggled: false
       })
@@ -69,12 +69,15 @@ class SmsAuthContainer extends React.PureComponent {
     }
   }
 
-  render () {
-    const { data, verificationCode, goBack, ...rest } = this.props
+  render() {
+    const { data, goBack, verificationCode } = this.props
 
     return data.cata({
-      Success: value => (
-        <Success
+      Failure: () => null,
+      Loading: () => null,
+      NotAsked: () => null,
+      Success: (value) => (
+        <Sms
           data={value}
           handleClick={this.handleClick}
           onSubmit={this.onSubmit}
@@ -83,27 +86,21 @@ class SmsAuthContainer extends React.PureComponent {
           uiState={this.state}
           code={verificationCode}
         />
-      ),
-      Failure: message => <Error {...rest} message={message} />,
-      Loading: () => <Loading {...rest} />,
-      NotAsked: () => <Loading {...rest} />
+      )
     })
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
+  data: getData(state),
   mobileNumber: formValueSelector('securitySms')(state, 'mobileNumber'),
-  verificationCode: formValueSelector('securitySms')(state, 'verificationCode'),
-  data: getData(state)
+  verificationCode: formValueSelector('securitySms')(state, 'verificationCode')
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   modalActions: bindActionCreators(actions.modals, dispatch),
-  settingsActions: bindActionCreators(actions.core.settings, dispatch),
-  securityCenterActions: bindActionCreators(
-    actions.modules.securityCenter,
-    dispatch
-  )
+  securityCenterActions: bindActionCreators(actions.modules.securityCenter, dispatch),
+  settingsActions: bindActionCreators(actions.core.settings, dispatch)
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SmsAuthContainer)

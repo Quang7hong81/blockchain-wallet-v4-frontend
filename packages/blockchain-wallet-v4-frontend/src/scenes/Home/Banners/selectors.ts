@@ -1,69 +1,101 @@
+import { TIER_TYPES } from 'blockchain-wallet-v4-frontend/src/modals/Settings/TradingLimits/model'
 import { anyPass, equals } from 'ramda'
-import { model, selectors } from 'data'
-import { SBOrderType } from 'core/types'
 
-const { GENERAL, EXPIRED } = model.profile.DOC_RESUBMISSION_REASONS
+import { SBOrderType, SwapUserLimitsType } from 'blockchain-wallet-v4/src/types'
+import { model, selectors } from 'data'
+import { RootState } from 'data/rootReducer'
+import { UserDataType } from 'data/types'
+
+const { EXPIRED, GENERAL } = model.profile.DOC_RESUBMISSION_REASONS
 export type BannerType =
   | 'resubmit'
   | 'sbOrder'
   | 'finishKyc'
-  | 'coinifyToSb'
-  | 'verifiedKyc'
-  | 'noneKyc'
+  | 'newCurrency'
+  | 'buyCrypto'
+  | 'continueToGold'
+  | 'recurringBuys'
+  | 'coinListing'
+  | null
 
-export const getData = (state): { bannerToShow: BannerType } => {
+export const getNewCoinAnnouncement = (coin: string) => `${coin}-homepage`
+
+export const getData = (state: RootState): { bannerToShow: BannerType } => {
+  const announcementState = selectors.cache.getLastAnnouncementState(state)
   // @ts-ignore
   const showDocResubmitBanner = selectors.modules.profile
     .getKycDocResubmissionStatus(state)
     .map(anyPass([equals(GENERAL), equals(EXPIRED)]))
     .getOrElse(false)
-
-  // const balancesR = selectors.components.simpleBuy.getSBBalances(state)
   const ordersR = selectors.components.simpleBuy.getSBOrders(state)
   const orders: Array<SBOrderType> = ordersR.getOrElse([])
-  // const balances = balancesR.getOrElse({})
   const isSimpleBuyOrderPending = orders.find(
-    order =>
-      order.state === 'PENDING_CONFIRMATION' ||
-      order.state === 'PENDING_DEPOSIT'
+    (order) => order.state === 'PENDING_CONFIRMATION' || order.state === 'PENDING_DEPOSIT'
   )
 
   const isUserActive =
-    // @ts-ignore
-    selectors.modules.profile.getUserActivationState(state).getOrElse('') !==
-    'NONE'
+    selectors.modules.profile.getUserActivationState(state).getOrElse('') !== 'NONE'
   const isKycStateNone =
     // @ts-ignore
     selectors.modules.profile.getUserKYCState(state).getOrElse('') === 'NONE'
+
   const isFirstLogin = selectors.auth.getFirstLogin(state)
 
-  // const isKycGold =
-  //   // @ts-ignore
-  //   selectors.modules.profile.getUserKYCState(state).getOrElse('') ===
-  //   'VERIFIED'
+  const userDataR = selectors.modules.profile.getUserData(state)
+  const userData = userDataR.getOrElse({
+    tiers: { current: 0 }
+  } as UserDataType)
 
-  // const coins = selectors.components.utils
-  //   .getSupportedCoinsWithMethodAndOrder(state)
-  //   .getOrElse([])
+  const { KYC_STATES } = model.profile
+  const isKycPendingOrVerified =
+    userData.kycState === KYC_STATES.PENDING ||
+    userData.kycState === KYC_STATES.UNDER_REVIEW ||
+    userData.kycState === KYC_STATES.VERIFIED
+  const sddEligibleTier = selectors.components.simpleBuy.getUserSddEligibleTier(state).getOrElse(1)
 
-  // const methodWithNoBalance = coins.filter(
-  //   coin =>
-  //     coin.coinCode in FiatTypeEnum &&
-  //     coin.method &&
-  //     !balances[coin.coinCode as WalletCurrencyType]
-  // ).length
+  // continueToGold
+  const limits = selectors.components.simpleBuy.getLimits(state).getOrElse({
+    annual: {
+      available: '0'
+    }
+  } as SwapUserLimitsType)
 
-  let bannerToShow
-  if (showDocResubmitBanner) {
+  // recurringBuys
+  const isRecurringBuy = selectors.core.walletOptions
+    .getFeatureFlagRecurringBuys(state)
+    .getOrElse(false) as boolean
+
+  // newCurrency
+  const newCoinListing = selectors.core.walletOptions.getNewCoinListing(state).getOrElse('')
+  const newCoinAnnouncement = getNewCoinAnnouncement(newCoinListing)
+  const isNewCurrency =
+    newCoinListing &&
+    (!announcementState ||
+      !announcementState[newCoinAnnouncement] ||
+      (announcementState[newCoinAnnouncement] && !announcementState[newCoinAnnouncement].dismissed))
+
+  const isTier3SDD = sddEligibleTier === 3
+
+  let bannerToShow: BannerType = null
+  if (showDocResubmitBanner && !isKycPendingOrVerified) {
     bannerToShow = 'resubmit'
-  } else if (isSimpleBuyOrderPending) {
+  } else if (isSimpleBuyOrderPending && !isTier3SDD) {
     bannerToShow = 'sbOrder'
-  } else if (isKycStateNone && isUserActive && !isFirstLogin) {
+  } else if (isKycStateNone && isUserActive && !isFirstLogin && !isTier3SDD) {
     bannerToShow = 'finishKyc'
-    // } else if (isKycStateNone && methodWithNoBalance) {
-    //   bannerToShow = 'noneKyc'
-    // } else if (isKycGold && methodWithNoBalance) {
-    //   bannerToShow = 'verifiedKyc'
+  } else if (userData?.tiers?.current < 2 || isKycStateNone) {
+    bannerToShow = 'buyCrypto'
+  } else if (
+    (userData?.tiers?.current === TIER_TYPES.SILVER ||
+      userData?.tiers?.current === TIER_TYPES.SILVER_PLUS) &&
+    limits?.annual.available &&
+    Number(limits?.annual.available) > 0
+  ) {
+    bannerToShow = 'continueToGold'
+  } else if (isNewCurrency) {
+    bannerToShow = 'newCurrency'
+  } else if (isRecurringBuy) {
+    bannerToShow = 'recurringBuys'
   } else {
     bannerToShow = null
   }

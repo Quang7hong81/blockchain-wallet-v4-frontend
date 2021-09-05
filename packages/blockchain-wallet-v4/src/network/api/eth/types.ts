@@ -31,13 +31,17 @@ type EthRawPendingTxType = {
   value: string
 }
 
+export type AccountTokensBalancesResponseType = {
+  tokenAccounts: {
+    accountHash: string
+    balance: string
+    decimals: number
+    tokenHash: string
+    tokenSymbol: string
+    totalReceived: string
+    totalSent: string
+    transferCount: string
+  }[]
+}
+
 export type EthRawTxType = EthRawConfirmedTxType | EthRawPendingTxType
-
-export enum Erc20ListEnum {
-  '0x8e870d67f660d95d5be530380d0ec0bd388289e1' = 'PAX'
-}
-
-export enum Erc20CoinsEnum {
-  PAX = 'PAX',
-  USDT = 'USDT'
-}

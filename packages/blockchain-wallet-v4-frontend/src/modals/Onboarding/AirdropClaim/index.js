@@ -1,12 +1,11 @@
-import { bindActionCreators, compose } from 'redux'
-import { connect } from 'react-redux'
-import { FormattedMessage } from 'react-intl'
-import { prop } from 'ramda'
-import { reduxForm } from 'redux-form'
 import React from 'react'
+import { FormattedMessage } from 'react-intl'
+import { connect } from 'react-redux'
+import { prop } from 'ramda'
+import { bindActionCreators, compose } from 'redux'
+import { reduxForm } from 'redux-form'
 import styled from 'styled-components'
 
-import { actions, model, selectors } from 'data'
 import {
   Button,
   HeartbeatLoader,
@@ -16,6 +15,7 @@ import {
   ModalHeader,
   Text
 } from 'blockchain-info-components'
+import { actions, model, selectors } from 'data'
 import modalEnhancer from 'providers/ModalEnhancer'
 
 const { CAMPAIGNS } = model.components.identityVerification
@@ -42,14 +42,14 @@ const Header = styled(Text)`
   font-size: 24px;
   font-weight: 600;
   margin-top: 18px;
-  color: ${props => props.theme['grey800']};
+  color: ${(props) => props.theme.grey800};
 `
 const Copy = styled(Text)`
   margin-top: 16px;
   font-weight: 500;
   line-height: 1.6;
   max-width: 300px;
-  color: ${props => props.theme['grey800']};
+  color: ${(props) => props.theme.grey800};
 `
 const FooterButton = styled(Button)`
   height: 56px;
@@ -58,27 +58,14 @@ const FooterButton = styled(Button)`
 `
 
 class AirdropClaim extends React.PureComponent {
-  componentDidMount () {
+  componentDidMount() {
     this.props.preferencesActions.hideAirdropClaimModal()
   }
 
-  render () {
-    const {
-      actions,
-      campaign,
-      close,
-      isCampaignTagged,
-      position,
-      submitting,
-      total
-    } = this.props
+  render() {
+    const { actions, campaign, close, isCampaignTagged, position, submitting, total } = this.props
     return (
-      <Modal
-        size='small'
-        position={position}
-        total={total}
-        dataE2e='infoModalAirdropClaim'
-      >
+      <Modal size='small' position={position} total={total} dataE2e='infoModalAirdropClaim'>
         <AbsoluteModalHeader onClose={close} />
         <Body>
           <Image width='52px' name='gold-verified' />
@@ -94,8 +81,8 @@ class AirdropClaim extends React.PureComponent {
                 id='modals.airdropclaim.thanksforparticipatingairdropprogram'
                 defaultMessage='Thanks for already joining our Airdrop Program. If you are eligible you should be receiving your {coinName} ({coinCode}) soon!'
                 values={{
-                  coinName: prop('coinName', CAMPAIGNS[campaign]),
-                  coinCode: prop('coinCode', CAMPAIGNS[campaign])
+                  coinCode: prop('coinCode', CAMPAIGNS[campaign]),
+                  coinName: prop('coinName', CAMPAIGNS[campaign])
                 }}
               />
             </Copy>
@@ -136,19 +123,17 @@ AirdropClaim.defaultProps = {
   campaign: 'sunriver'
 }
 
-const mapStateToProps = state => ({
-  isCampaignTagged: selectors.modules.profile
-    .getSunRiverTag(state)
-    .getOrElse(false)
+const mapStateToProps = (state) => ({
+  isCampaignTagged: selectors.modules.profile.getSunRiverTag(state).getOrElse(false)
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(actions.components.onboarding, dispatch),
   preferencesActions: bindActionCreators(actions.preferences, dispatch)
 })
 
 const enhance = compose(
-  modalEnhancer('AirdropClaim'),
+  modalEnhancer('AIRDROP_CLAIM_MODAL'),
   reduxForm({ form: 'airdropClaim' }),
   connect(mapStateToProps, mapDispatchToProps)
 )

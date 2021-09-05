@@ -1,11 +1,13 @@
+import React from 'react'
+import { prop } from 'ramda'
+
 import { Exchange } from 'blockchain-wallet-v4/src'
+
 import {
   InsufficientFundsMessage,
   InvalidAmountMessage,
   MaximumAmountMessage
 } from './validationMessages'
-import { prop } from 'ramda'
-import React from 'react'
 
 const getEffectiveBalance = props => {
   return Number(props.effectiveBalance)
@@ -21,21 +23,21 @@ export const insufficientFunds = (value, allValues, props) => {
 
 export const invalidAmount = (value, allValues, props) => {
   const valueBch = prop('coin', value)
-  const valueSatoshi = Exchange.convertBchToBch({
+  const valueSatoshi = Exchange.convertCoinToCoin({
     value: valueBch,
-    fromUnit: 'BCH',
-    toUnit: 'SAT'
-  }).value
+    baseToStandard: false,
+    coin: 'BCH'
+  })
   return valueSatoshi > 0 ? undefined : <InvalidAmountMessage />
 }
 
 export const maximumAmount = (value, allValues, props) => {
   const valueBch = prop('coin', value)
-  const valueSatoshi = Exchange.convertBchToBch({
+  const valueSatoshi = Exchange.convertCoinToCoin({
     value: valueBch,
-    fromUnit: 'BCH',
-    toUnit: 'SAT'
-  }).value
+    baseToStandard: false,
+    coin: 'BCH'
+  })
   return valueSatoshi <= getEffectiveBalance(props) ? (
     undefined
   ) : (
@@ -44,11 +46,11 @@ export const maximumAmount = (value, allValues, props) => {
 }
 
 export const shouldError = ({
-  values,
+  initialRender,
   nextProps,
   props,
-  initialRender,
-  structure
+  structure,
+  values
 }) => {
   if (initialRender) {
     return true

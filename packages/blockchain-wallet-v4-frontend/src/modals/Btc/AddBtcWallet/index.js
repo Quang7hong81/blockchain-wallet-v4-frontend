@@ -1,36 +1,33 @@
-import { actions } from 'data'
-import { bindActionCreators, compose } from 'redux'
-import { connect } from 'react-redux'
-import { formValueSelector } from 'redux-form'
-import AddBtcWallet from './template.js'
-import modalEnhancer from 'providers/ModalEnhancer'
 import React from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators, compose } from 'redux'
+import { formValueSelector } from 'redux-form'
+
+import { actions } from 'data'
+import modalEnhancer from 'providers/ModalEnhancer'
+
+import AddBtcWallet from './template.js'
 
 class AddBtcWalletContainer extends React.PureComponent {
-  constructor (props) {
-    super(props)
-    this.onSubmit = this.onSubmit.bind(this)
-  }
-
-  onSubmit () {
+  onSubmit = () => {
     this.props.actions.newHDAccount(this.props.wallet)
   }
 
-  render () {
+  render() {
     return <AddBtcWallet {...this.props} onSubmit={this.onSubmit} />
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   wallet: formValueSelector('addBtcWallet')(state, 'wallet')
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(actions.modules.settings, dispatch)
 })
 
 const enhance = compose(
-  modalEnhancer('AddBtcWallet'),
+  modalEnhancer('ADD_BTC_WALLET_MODAL'),
   connect(mapStateToProps, mapDispatchToProps)
 )
 

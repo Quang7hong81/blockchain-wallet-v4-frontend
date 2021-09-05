@@ -1,22 +1,15 @@
-import { compose } from 'redux'
-import { connect } from 'react-redux'
-import { FormattedMessage } from 'react-intl'
-import PropTypes from 'prop-types'
 import React from 'react'
+import { FormattedMessage } from 'react-intl'
+import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
+import { bindActionCreators, compose } from 'redux'
 import styled from 'styled-components'
 
-import { model } from 'data'
+import { Icon, Link, Modal, ModalBody, ModalHeader, Text } from 'blockchain-info-components'
+import { actions, model } from 'data'
 import modalEnhancer from 'providers/ModalEnhancer'
 
 import { getData } from './selectors'
-import {
-  Icon,
-  Link,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  Text
-} from 'blockchain-info-components'
 
 const Header = styled.div`
   cursor: pointer;
@@ -52,37 +45,40 @@ const Row = styled.div`
 const Bold = styled.b`
   font-weight: 500;
 `
-class XlmCreateAccountLearn extends React.PureComponent {
-  render () {
+class XlmReserveLearn extends React.PureComponent {
+  onClose = () => {
+    this.props.closeAll()
+    this.props.modalActions.showModal('SEND_XLM_MODAL', {
+      origin: '@SEND.XLM.RESERVE_LEARN_MODAL'
+    })
+  }
+
+  render() {
     const {
-      position,
-      total,
-      close,
       currencySymbol,
       effectiveBalanceMinusFeeFiat,
       effectiveBalanceMinusFeeXlm,
       feeFiat,
       feeXlm,
+      position,
       reserveFiat,
       reserveXlm,
+      total,
       totalAmountFiat,
       totalAmountXlm
     } = this.props
+
     return (
       <Modal
         size='medium'
         position={position}
         total={total}
-        closeAll={close}
+        closeAll={this.onClose}
         data-e2e='xlmMinimumModal'
       >
-        <ModalHeader onClose={close}>
-          <Header onClick={close}>
-            <BackIcon
-              name='arrow-left'
-              data-e2e='xlmMinimumModalBack'
-              size='20px'
-            />
+        <ModalHeader onClose={this.onClose}>
+          <Header onClick={this.onClose}>
+            <BackIcon name='arrow-left' data-e2e='xlmMinimumModalBack' size='20px' />
             <FormattedMessage id='buttons.back' defaultMessage='Back' />
           </Header>
         </ModalHeader>
@@ -126,14 +122,9 @@ class XlmCreateAccountLearn extends React.PureComponent {
           <br />
           <Row>
             <Paragraph>
-              <FormattedMessage
-                id='modal.reservelearn.totalfunds'
-                defaultMessage='Total funds'
-              />
+              <FormattedMessage id='modal.reservelearn.totalfunds' defaultMessage='Total funds' />
             </Paragraph>
-            <Paragraph>
-              {`${totalAmountXlm} XLM (${currencySymbol}${totalAmountFiat})`}
-            </Paragraph>
+            <Paragraph>{`${totalAmountXlm} XLM (${currencySymbol}${totalAmountFiat})`}</Paragraph>
           </Row>
           <br />
           <Row>
@@ -143,21 +134,14 @@ class XlmCreateAccountLearn extends React.PureComponent {
                 defaultMessage='Minimum Balance Requirement'
               />
             </Paragraph>
-            <Paragraph>
-              {`${reserveXlm} XLM (${currencySymbol}${reserveFiat})`}
-            </Paragraph>
+            <Paragraph>{`${reserveXlm} XLM (${currencySymbol}${reserveFiat})`}</Paragraph>
           </Row>
           <br />
           <Row>
             <Paragraph>
-              <FormattedMessage
-                id='modal.reservelearn.fee'
-                defaultMessage='Transaction fee'
-              />
+              <FormattedMessage id='modal.reservelearn.fee' defaultMessage='Transaction fee' />
             </Paragraph>
-            <Paragraph>
-              {`${feeXlm} XLM (${currencySymbol}${feeFiat})`}
-            </Paragraph>
+            <Paragraph>{`${feeXlm} XLM (${currencySymbol}${feeFiat})`}</Paragraph>
           </Row>
           <br />
           <Row>
@@ -181,7 +165,7 @@ class XlmCreateAccountLearn extends React.PureComponent {
   }
 }
 
-XlmCreateAccountLearn.propTypes = {
+XlmReserveLearn.propTypes = {
   currency: PropTypes.string.isRequired,
   effectiveBalanceXlm: PropTypes.string.isRequired,
   reserveXlm: PropTypes.string.isRequired,
@@ -189,9 +173,13 @@ XlmCreateAccountLearn.propTypes = {
   rates: PropTypes.object.isRequired
 }
 
+const mapDispatchToProps = (dispatch) => ({
+  modalActions: bindActionCreators(actions.modals, dispatch)
+})
+
 const enhance = compose(
-  modalEnhancer(model.components.sendXlm.RESERVE_LEARN_MODAL),
-  connect(getData)
+  modalEnhancer('SEND_XLM_RESERVE_LEARN_MODAL'),
+  connect(getData, mapDispatchToProps)
 )
 
-export default enhance(XlmCreateAccountLearn)
+export default enhance(XlmReserveLearn)

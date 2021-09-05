@@ -1,8 +1,23 @@
 import * as WalletOptions from '../../../../../config/mocks/wallet-options-v4.json'
 import { CoinType, RemoteDataType, WalletFiatType } from '../../types'
-import { IcoMoonType } from 'blockchain-info-components/src/Icons/Icomoon'
 
 export type WalletOptionsType = typeof WalletOptions
+
+export type CoinfigType = {
+  name: string
+  precision: number
+  products: ('CustodialWalletBalance' | 'PrivateKey')[]
+  symbol: string
+  type: {
+    erc20Address?: string
+    isMemoBased?: string
+    logoPngUrl: string
+    minimumOnChainConfirmations?: number
+    name: 'FIAT' | 'ERC20' | 'COIN'
+    parentChain?: string
+    websiteUrl: string
+  }
+}
 
 export type SupportedCoinType = {
   availability: {
@@ -15,25 +30,20 @@ export type SupportedCoinType = {
   }
   coinCode: CoinType
   coinTicker: CoinType
-  colorCode: 'algo' | 'btc' | 'bch' | 'eth' | 'xlm' | 'pax' | 'stx' | 'usdt'
+  coinfig: CoinfigType
   config: {
     network: string
   }
   contractAddress?: string
   displayName: string
   hasLockboxSupport: boolean
-  icons: {
-    circle: keyof IcoMoonType
-    circleFilled: keyof IcoMoonType
-    default: keyof IcoMoonType
-  }
   invited?: boolean
+  isFiat?: boolean
+  isMemoBased?: boolean
   learnMoreLink: string
   method?: boolean
   minConfirmations: number
-  showNewTagSidenav: boolean
   txExplorerBaseUrl: string
-  txListAppRoute: string
 }
 
 export type SupportedFiatType = {
@@ -45,28 +55,16 @@ export type SupportedFiatType = {
   }
   coinCode: WalletFiatType
   coinTicker: WalletFiatType
-  colorCode: 'fiat'
-  displayName: 'Euros' | 'Pounds'
-  icons: {
-    circle: 'eur' | 'gbp'
-    circleFilled: 'eur' | 'gbp'
-    default: 'eur' | 'gbp'
-  }
+  coinfig: CoinfigType
+  contractAddress?: never
+  displayName: string
   invited?: boolean
+  isFiat?: boolean
   learnMoreLink: ''
   method?: boolean
   minConfirmations: 0
-  showNewTagSidenav: boolean
-  txExplorerBaseUrl: ''
-  txListAppRoute: string
+  txExploreBaseUrl: ''
 }
-
-export type SupportedWalletCurrenciesType = {
-  [key in CoinType]: SupportedCoinType
-} &
-  {
-    [key in WalletFiatType]: SupportedFiatType
-  }
 
 export type SupportedWalletCurrencyType = SupportedCoinType | SupportedFiatType
 

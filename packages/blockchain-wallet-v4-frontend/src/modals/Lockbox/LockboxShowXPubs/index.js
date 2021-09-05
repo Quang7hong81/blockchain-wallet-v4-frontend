@@ -1,14 +1,9 @@
-import { bindActionCreators, compose } from 'redux'
-import { connect } from 'react-redux'
-import { FormattedMessage } from 'react-intl'
-import { keys } from 'ramda'
-import QRCodeWrapper from 'components/QRCodeWrapper'
 import React from 'react'
+import { FormattedMessage } from 'react-intl'
+import { connect } from 'react-redux'
+import { keys } from 'ramda'
+import { bindActionCreators, compose } from 'redux'
 import styled from 'styled-components'
-
-import { actions } from 'data'
-import media from 'services/ResponsiveService'
-import modalEnhancer from 'providers/ModalEnhancer'
 
 import {
   Banner,
@@ -20,6 +15,11 @@ import {
   ModalHeader,
   Text
 } from 'blockchain-info-components'
+import QRCodeWrapper from 'components/QRCode/Wrapper'
+import { actions } from 'data'
+import modalEnhancer from 'providers/ModalEnhancer'
+import { media } from 'services/styles'
+
 import { getData } from './selectors'
 
 const Content = styled.div`
@@ -32,7 +32,7 @@ const WarningBanner = styled(Banner)`
   margin-bottom: 20px;
 `
 const XPubText = styled(Text)`
-  background-color: ${props => props.theme.grey000};
+  background-color: ${(props) => props.theme.grey000};
   padding: 25px;
   margin-bottom: 20px;
   word-break: break-all;
@@ -40,7 +40,7 @@ const XPubText = styled(Text)`
 `
 const Tabs = styled.div`
   display: flex;
-  border-bottom: 2px solid ${props => props.theme.grey000};
+  border-bottom: 2px solid ${(props) => props.theme.grey000};
   margin-bottom: 35px;
 `
 const Tab = styled.div`
@@ -63,7 +63,7 @@ const Tab = styled.div`
     position: absolute;
     transform: scaleX(0);
     transition: transform 0.3s;
-    border-bottom: solid 2px ${props => props.theme['grey800']};
+    border-bottom: solid 2px ${(props) => props.theme.grey800};
   }
   > * {
     transition: color 0.3s;
@@ -84,7 +84,7 @@ const TabHeader = styled(Text)`
 const TabIcon = styled(Icon)`
   margin-right: 10px;
   ${media.atLeastTablet`
-    font-size: ${props => props.size || '20px'};
+    font-size: ${(props) => props.size || '20px'};
   `}
 `
 
@@ -93,16 +93,19 @@ export class LockboxShowXPubs extends React.PureComponent {
     activeTab: 'btc'
   }
 
-  setActive = tab => {
+  setActive = (tab) => {
     this.setState({ activeTab: tab })
   }
 
-  render () {
+  render() {
     const { closeAll, position, total } = this.props
     const { activeTab } = this.state
 
     return this.props.data.cata({
-      Success: coins => (
+      Failure: () => <div />,
+      Loading: () => <div />,
+      NotAsked: () => <div />,
+      Success: (coins) => (
         <Modal size='large' position={position} total={total}>
           <ModalHeader icon='lock' onClose={closeAll}>
             <FormattedMessage
@@ -120,18 +123,14 @@ export class LockboxShowXPubs extends React.PureComponent {
               </Text>
             </WarningBanner>
             <Tabs>
-              {keys(coins).map(coin => {
+              {keys(coins).map((coin) => {
                 return (
                   <Tab
                     key={coin}
                     className={activeTab === coin ? 'active' : ''}
                     onClick={() => this.setActive(coin)}
                   >
-                    <TabIcon
-                      name={coin + '-circle-filled'}
-                      size='28px'
-                      color={coin}
-                    />
+                    <TabIcon name={coin} size='28px' color={coin} />
                     <TabHeader>
                       <span>{coin.toUpperCase()}</span>
                     </TabHeader>
@@ -170,10 +169,7 @@ export class LockboxShowXPubs extends React.PureComponent {
             </Button>
           </ModalFooter>
         </Modal>
-      ),
-      Failure: () => <div />,
-      Loading: () => <div />,
-      NotAsked: () => <div />
+      )
     })
   }
 }
@@ -182,12 +178,12 @@ const mapStateToProps = (state, ownProps) => ({
   data: getData(state, ownProps.deviceIndex)
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   modalActions: bindActionCreators(actions.modals, dispatch)
 })
 
 const enhance = compose(
-  modalEnhancer('LockboxShowXPubs'),
+  modalEnhancer('LOCKBOX_SHOW_XPUBS'),
   connect(mapStateToProps, mapDispatchToProps)
 )
 
