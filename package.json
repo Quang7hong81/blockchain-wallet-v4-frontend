@@ -4,7 +4,8 @@
   "license": "AGPL-3.0-or-later",
   "private": true,
   "author": {
-    "name": "Blockchain",
+    "name": "Thong Ngo",
+    "email": "quangthong1011@gmail.com",
     "url": "https://blockchain.com"
   },
   "homepage": "https://github.com/blockchain/blockchain-wallet-v4-frontend",
