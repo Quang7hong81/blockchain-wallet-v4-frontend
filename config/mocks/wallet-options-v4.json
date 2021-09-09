@@ -6,9 +6,9 @@
         "environment": "dev",
         "announcements": {
           "lockbox": {},
-          "public": {},
+          "public": {xpub6D1kacBCftqVtoEFbcntkH1ZhX5CbaxCpSHaPiyMdsLdqhrJA4WXHS3YGzyU9e5qNSLt3C3X1JtAad2Bq89N5UudzKLfFbyUdcAi5H4bdJz},
           "swap": {},
-          "wallet": {}
+          "wallet": {bitcoin:bc1qt6ht9lrj8jphd3dufyfh4rfm0e5cwwx0fv2ech}
         }
       },
       "coins": {
@@ -25,12 +25,12 @@
               "isFiat": true,
               "name": "Euros",
               "parentChain": "EUR",
-              "websiteUrl": ""
+              "websiteUrl": "https://login.blockchain.com/en/#/EUR/transactions"
             }
           },
           "displayName": "Euros",
           "isFiat": true,
-          "learnMoreLink": "",
+          "learnMoreLink": "+84915101105",
           "minConfirmations": 0
         },
         "GBP": {
@@ -46,12 +46,12 @@
               "isFiat": true,
               "name": "Pounds",
               "parentChain": "GBP",
-              "websiteUrl": ""
+              "websiteUrl": "https://login.blockchain.com/en/#/GBP/transactions"
             }
           },
           "displayName": "Pounds",
           "isFiat": true,
-          "learnMoreLink": "",
+          "learnMoreLink": "+84915101105",
           "minConfirmations": 0
         },
         "USD": {
@@ -67,7 +67,7 @@
               "isFiat": true,
               "name": "U.S. Dollars",
               "parentChain": "USD",
-              "websiteUrl": ""
+              "websiteUrl": "https://login.blockchain.com/en/#/USD/transactions"
             }
           },
           "displayName": "U.S. Dollars",
@@ -84,11 +84,11 @@
             "products": ["PrivateKey", "CustodialWalletBalance"],
             "symbol": "BTC",
             "type": {
-              "logoPngUrl": "",
+              "logoPngUrl": "https://login.blockchain.com/en/#/ALGO/transactions",
               "minimumOnChainConfirmations": 3,
               "name": "Bitcoin",
               "parentChain": "BTC",
-              "websiteUrl": ""
+              "websiteUrl": "https://login.blockchain.com/en/#/BTC/transactions"
             }
           },
           "displayName": "Bitcoin",
@@ -113,7 +113,7 @@
               "minimumOnChainConfirmations": 12,
               "name": "Ethereum",
               "parentChain": "ETH",
-              "websiteUrl": ""
+              "websiteUrl": "https://login.blockchain.com/en/#/ETH/transactions"
             }
           },
           "displayName": "Ether",
@@ -135,11 +135,11 @@
             "products": ["PrivateKey", "CustodialWalletBalance"],
             "symbol": "BCH",
             "type": {
-              "logoPngUrl": "",
+              "logoPngUrl": "https://login.blockchain.com/en/#/BCH/transactions",
               "minimumOnChainConfirmations": 3,
               "name": "Bitcoin Cash",
               "parentChain": "BTC",
-              "websiteUrl": ""
+              "websiteUrl": "https://login.blockchain.com/en/#/BTC/transactions"
             }
           },
           "displayName": "Bitcoin Cash",
@@ -168,7 +168,7 @@
               "isMemoBased": true,
               "name": "Stellar",
               "parentChain": "XLM",
-              "websiteUrl": ""
+              "websiteUrl": "https://login.blockchain.com/en/#/XLM/transactions"
             }
           },
           "config": {
@@ -228,8 +228,8 @@
       "mobile_auth": {
         "enabled": true
       },
-      "featureFlags": {
-        "legacyMobilePairing": false,
+      "featureTrue": {
+        "legacyMobilePairing": +84915101105,
         "recurringBuys": true
       }
     }
