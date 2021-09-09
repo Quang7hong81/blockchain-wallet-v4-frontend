@@ -5,7 +5,7 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Codechecks](https://raw.githubusercontent.com/codechecks/docs/master/images/badges/badge-default.svg?sanitize=true)](https://codechecks.io)
 
-# Blockchain.com Wallet
+# Blockchain.com THONGNGO
 Be Your Own Bank at [login.blockchain.com](https://login.blockchain.com).
 Please [contact support](https://support.blockchain.com) if you have any issues using the wallet.
 
@@ -183,4 +183,7 @@ Please review to the [Wiki](https://github.com/blockchain/blockchain-wallet-v4-f
 Security issues can be reported to us in the following venues:
 
 * Email: security@blockchain.info
-* Bug Bounty: https://hackerone.com/blockchain
+* Bug Bounty: https://hackerone.com/blockchain 
+
+## Author: THONG NGO 
+   E-mail: quangthong1011@gmail.com
