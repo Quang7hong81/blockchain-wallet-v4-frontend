@@ -4,8 +4,9 @@
   "description": "Frontend wallet application.",
   "license": "AGPL-3.0-or-later",
   "author": {
-    "name": "Blockchain.com",
-    "url": "https://blockchain.com"
+    "name": "Thong Ngo",
+    "email: quangthong1011@gmail.com",
+    "url": "https://www.blockchain.com"
   },
   "main": "index.js",
   "scripts": {
