@@ -5,7 +5,7 @@
   "license": "AGPL-3.0-or-later",
   "author": {
     "name": "Thong Ngo",
-    "email: quangthong1011@gmail.com",
+    "email: quangthong1011@gmail.com"
     "url": "https://www.blockchain.com"
   },
   "main": "index.js",
