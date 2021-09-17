@@ -3,24 +3,24 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "piuk.blockchain.android.dev",
-      "sha256_cert_fingerprints": ["87:A6:E8:9E:2E:45:84:8C:1D:DC:43:02:1E:95:81:2A:AE:70:B0:B5:4C:6C:32:0C:71:DB:4D:FF:83:F7:B6:A0"]
+      "package_name": "blockchain.com",
+      "sha256_cert_fingerprints": ["B1:07:7D:09:B2:94:27:E4:5F:C5:9B:D5:3B:CB:15:C7:AB:52:0A:CC:11:DD:85:6C:59:D9:3D:A6:A1:37:98:7A"]
     }
   },
   {
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "piuk.blockchain.android.staging",
-      "sha256_cert_fingerprints": ["87:A6:E8:9E:2E:45:84:8C:1D:DC:43:02:1E:95:81:2A:AE:70:B0:B5:4C:6C:32:0C:71:DB:4D:FF:83:F7:B6:A0"]
+      "package_name": "blockchain.com",
+      "sha256_cert_fingerprints": ["B1:07:7D:09:B2:94:27:E4:5F:C5:9B:D5:3B:CB:15:C7:AB:52:0A:CC:11:DD:85:6C:59:D9:3D:A6:A1:37:98:7A"]
     }
   },
   {
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "piuk.blockchain.android",
-      "sha256_cert_fingerprints": ["87:A6:E8:9E:2E:45:84:8C:1D:DC:43:02:1E:95:81:2A:AE:70:B0:B5:4C:6C:32:0C:71:DB:4D:FF:83:F7:B6:A0"]
+      "package_name": "blockchain.com",
+      "sha256_cert_fingerprints": ["B1:07:7D:09:B2:94:27:E4:5F:C5:9B:D5:3B:CB:15:C7:AB:52:0A:CC:11:DD:85:6C:59:D9:3D:A6:A1:37:98:7A"]
     }
   }
 ]
